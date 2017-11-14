@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Ольга Бордадын](https://up.htmlacademy.ru/javascript/11/user/375607).
-* Наставник: `Неизвестно`.
+* Наставник: `Иван Долгов`.
 
 ---
 
