@@ -21,64 +21,57 @@ var getRandomInteger = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-var creatingUrlAvatar = function (firstNumber, twoNumber) {
-  return 'img/avatars/user' + firstNumber + twoNumber + '.png';
+var creatingUrlAvatar = function (photoNumber) {
+  var firstNumber = '';
+  if (photoNumber < 9) {
+    firstNumber = 0;
+  }
+  return 'img/avatars/user' + firstNumber + photoNumber + '.png';
 };
 
-// Вот эта функция получения рандомных фич, но она неправильно работает. Т как в выборку может попасть 1 фича неснолько раз.
-// Я не очень поняла замечания по поводу фич
-// Вот это: "Ты сначала должна находить рандомно количество фич, которое ты хочешь взять, а потом рандомно взять столько фич из массива фич. Например, ты получила, что будет 3 фичи, а потом циклом проходишься 3 раза по массиву и вытягиваешь рандомные фичи'
-var getRandomFeatures = function () {
+var getRandomSubArray = function (arrayLength) {
+  // Какой -то маленький массив постоянно получается, то 1 свойство, то ни одного, может чего не так?
   var arrayFeatures = [];
-  var countFeatures = getRandomInteger(0, 6);
-  for (var i = 0; i < countFeatures; i++) {
-    arrayFeatures.push(adFeatures.features[getRandomInteger(0, countFeatures)]);
+  var index;
+  var element;
+  var arrayCopy = arrayLength;
+  for (var i = 0; i < getRandomInteger(0, arrayCopy.length - 1); i++) {
+    index = getRandomInteger(0, getRandomInteger(0, arrayCopy.length - 1));
+    element = arrayCopy[index];
+    arrayFeatures.push(element);
+    arrayCopy.splice(index, 1);
   }
   return arrayFeatures;
 };
-getRandomFeatures();
 
 var generateAdObject = function (objectPoint, count) {
-  var adObject = {};
-  adObject.locationX = getRandomInteger(300, 900);
-  adObject.locationY = getRandomInteger(100, 500);
-  adObject.avatar = creatingUrlAvatar(0, count + 1);
-  adObject.title = objectPoint.titles[count];
-  adObject.address = adObject.locationX + ', ' + adObject.locationY;
-  adObject.price = getRandomInteger(1000, 1000000);
-  adObject.type = objectPoint.types[getRandomInteger(0, objectPoint.types.length)];
-  adObject.rooms = getRandomInteger(1, 5);
-  adObject.guests = getRandomInteger(10, 100);
-  adObject.checkin = objectPoint.checkins[getRandomInteger(0, objectPoint.checkins.length)];
-  adObject.checkout = objectPoint.checkouts[getRandomInteger(0, objectPoint.checkouts.length)];
-  adObject.features = getRandomInteger(0, 6);
-  adObject.description = '';
-  adObject.photos = [];
+  var adObject = {
+    author: {},
+    offer: {},
+    location: {}
+  };
+  adObject.location.x = getRandomInteger(300, 900);
+  adObject.location.y = getRandomInteger(100, 500);
+  adObject.author.avatar = creatingUrlAvatar(count + 1);
+  adObject.offer.title = objectPoint.titles[count];
+  adObject.offer.address = adObject.location.x + ', ' + adObject.location.y;
+  adObject.offer.price = getRandomInteger(1000, 1000000);
+  adObject.offer.type = objectPoint.types[getRandomInteger(0, objectPoint.types.length)];
+  adObject.offer.rooms = getRandomInteger(1, 5);
+  adObject.offer.guests = getRandomInteger(10, 100);
+  adObject.offer.checkin = objectPoint.checkins[getRandomInteger(0, objectPoint.checkins.length - 1)];
+  adObject.offer.checkout = objectPoint.checkouts[getRandomInteger(0, objectPoint.checkouts.length - 1)];
+  adObject.offer.features = getRandomSubArray(objectPoint.features);
+  adObject.offer.description = '';
+  adObject.offer.photos = [];
   return adObject;
 };
+
 var generateAdArray = function (objectPoint, arrayLength) {
   var maps = [];
-  var adsObject;
   var i;
   for (i = 0; i < arrayLength; i++) {
-    adsObject = generateAdObject(objectPoint, i);
-    maps[i] = {
-      author: {avatar: adsObject.avatar},
-      offer: {
-        title: adsObject.title,
-        address: adsObject.address,
-        price: adsObject.price,
-        type: adsObject.type,
-        rooms: adsObject.rooms,
-        guests: adsObject.guests,
-        checkin: adsObject.checkin,
-        checkout: adsObject.checkout,
-        features: adsObject.features,
-        description: adsObject.description,
-        photos: adsObject.photos
-      },
-      location: {x: adsObject.locationX, y: adsObject.locationY}
-    };
+    maps[i] = generateAdObject(objectPoint, i);
   }
   return maps;
 };
@@ -87,9 +80,10 @@ var createLabel = function (adObject) {
   var buttonElement = mapPinTemplate.cloneNode(true);
   var img = buttonElement.querySelector('img');
   img.src = adObject.author.avatar;
-  // не могу понять как паддинг получить, у меня пустое значение img.style.padding;
-  buttonElement.style.left = (adObject.location.x - img.width / 2 - 3) + 'px';
-  buttonElement.style.top = (adObject.location.y - img.height / 2 - 3 - 5) + 'px';
+  // У меня почему-то здесь значения вообще не высчитываются, то их нет , то 0 , вероятно нужно повестить обработчики на onload?
+  // var computedStyle = getComputedStyle(mapPinTemplate, '::after').borderTopWidth;
+  buttonElement.style.left = (adObject.location.x - img.offsetWidth) + 'px';
+  buttonElement.style.top = (adObject.location.y - img.offsetHeight - 5) + 'px';
   return buttonElement;
 };
 
@@ -98,6 +92,7 @@ var createAdsCardMarkup = function (adObject) {
   var translate = {flat: 'Квартира', house: 'Дом', bungalo: 'Бунгало'};
   var i;
   var feature = '';
+  var featuresLength;
   adsElement.querySelector('h3').textContent = adObject.offer.title;
   adsElement.querySelector('p > small').textContent = adObject.offer.address;
   adsElement.querySelector('.popup__price').innerHTML = adObject.offer.price + ' &#x20bd;/ночь';
@@ -106,8 +101,8 @@ var createAdsCardMarkup = function (adObject) {
   adsElement.querySelector('h4 + p + p').textContent = 'Заезд после ' + adObject.offer.checkin + ', выезд до ' + adObject.offer.checkout;
   adsElement.querySelector('.popup__features + p').textContent = adObject.offer.description;
   adsElement.querySelector('.popup__avatar').src = adObject.author.avatar;
-  for (i = 0; i < adObject.offer.features; i++) {
-    feature += '<li class="feature feature--' + adFeatures.features[i] + '"></li>';
+  for (i = 0, featuresLength = adObject.offer.features.length; i < featuresLength; i++) {
+    feature += '<li class="feature feature--' + adObject.offer.features[i] + '"></li>';
   }
   adsElement.querySelector('.popup__features').innerHTML = feature;
   return adsElement;
@@ -125,7 +120,7 @@ var createMarkupFragment = function (adObject, createElements) {
 
 ads = generateAdArray(adFeatures, adsQuantity);
 map.classList.remove('map--faded');
-mapFiltersContainer.appendChild(createMarkupFragment(ads, createAdsCardMarkup));
+map.insertBefore(createMarkupFragment(ads, createAdsCardMarkup), mapFiltersContainer);
 mapPinContainer.appendChild(createMarkupFragment(ads, createLabel));
 
 
