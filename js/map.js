@@ -8,10 +8,7 @@ var mapPinTemplate = mapTemplateContainer.querySelector('.map__pin');
 var mapCardTemplate = mapTemplateContainer.querySelector('.map__card');
 var ads;
 var adsQuantity = 8;
-var img = mapPinContainer.querySelector('img');
-var widthImg = img.offsetWidth;
-var heightImg = img.offsetHeight;
-var ponytailTags = window.getComputedStyle(mapPinTemplate, ':after').getPropertyValue('borderTopWidth');
+
 var adFeatures = {
   titles: ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домиик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'],
   types: ['flat', 'house', 'bungalo'],
@@ -83,11 +80,16 @@ var generateAdArray = function (objectPoint, arrayLength) {
 };
 
 var createLabel = function (adObject) {
+  var img = mapPinContainer.querySelector('img');
+  var widthImg = img.offsetWidth;
+  var heightImg = img.offsetHeight;
+  var ponytailTagsWIdth = window.getComputedStyle(document.querySelector('.map .map__pin'), ':after').getPropertyValue('border-top-width');
+  var ponytailTagsWIdthNomber = +(ponytailTagsWIdth.substr(-ponytailTagsWIdth.length, 2));
   var buttonElement = mapPinTemplate.cloneNode(true);
   var imgCopy = buttonElement.querySelector('img');
   imgCopy.src = adObject.author.avatar;
   buttonElement.style.left = (adObject.location.x - widthImg) + 'px';
-  buttonElement.style.top = (adObject.location.y - heightImg - ponytailTags) + 'px';
+  buttonElement.style.top = (adObject.location.y - heightImg - ponytailTagsWIdthNomber) + 'px';
   return buttonElement;
 };
 
