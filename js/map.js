@@ -8,7 +8,10 @@ var mapPinTemplate = mapTemplateContainer.querySelector('.map__pin');
 var mapCardTemplate = mapTemplateContainer.querySelector('.map__card');
 var ads;
 var adsQuantity = 8;
-
+var img = mapPinContainer.querySelector('img');
+var widthImg = img.offsetWidth;
+var heightImg = img.offsetHeight;
+var ponytailTags = window.getComputedStyle(mapPinTemplate, ':after').getPropertyValue('borderTopWidth');
 var adFeatures = {
   titles: ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домиик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'],
   types: ['flat', 'house', 'bungalo'],
@@ -81,13 +84,10 @@ var generateAdArray = function (objectPoint, arrayLength) {
 
 var createLabel = function (adObject) {
   var buttonElement = mapPinTemplate.cloneNode(true);
-  var img = buttonElement.querySelector('img');
-  var ponytailTags = window.getComputedStyle(mapPinTemplate, ':after').getPropertyValue('borderTopWidth'); // тоже возвращает пустую строку
-  var width = img.offsetWidth; // не работает, дает 0
-  var height = img.offsetHeight; // тоже 0
-  img.src = adObject.author.avatar;
-  buttonElement.style.left = (adObject.location.x - width) + 'px';
-  buttonElement.style.top = (adObject.location.y - height - ponytailTags) + 'px';
+  var imgCopy = buttonElement.querySelector('img');
+  imgCopy.src = adObject.author.avatar;
+  buttonElement.style.left = (adObject.location.x - widthImg) + 'px';
+  buttonElement.style.top = (adObject.location.y - heightImg - ponytailTags) + 'px';
   return buttonElement;
 };
 
@@ -126,6 +126,3 @@ ads = generateAdArray(adFeatures, adsQuantity);
 map.classList.remove('map--faded');
 map.insertBefore(createMarkupFragment(ads, createAdsCardMarkup), mapFiltersContainer);
 mapPinContainer.appendChild(createMarkupFragment(ads, createLabel));
-
-
-
