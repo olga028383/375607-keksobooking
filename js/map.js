@@ -29,17 +29,20 @@ var creatingUrlAvatar = function (photoNumber) {
   return 'img/avatars/user' + firstNumber + photoNumber + '.png';
 };
 
-var getRandomSubArray = function (arrayLength) {
-  // Какой -то маленький массив постоянно получается, то 1 свойство, то ни одного, может чего не так?
+var getRandomSubArray = function (arrayElements) {
   var arrayFeatures = [];
   var index;
   var element;
-  var arrayCopy = arrayLength;
-  for (var i = 0; i < getRandomInteger(0, arrayCopy.length - 1); i++) {
-    index = getRandomInteger(0, getRandomInteger(0, arrayCopy.length - 1));
+  var i;
+  var randomArrayElement;
+  var arrayCopy = arrayElements.slice();
+  for (i = 0, randomArrayElement = getRandomInteger(1, arrayCopy.length); i < randomArrayElement; i++) {
+    index = getRandomInteger(0, getRandomInteger(0, arrayCopy.length));
     element = arrayCopy[index];
-    arrayFeatures.push(element);
-    arrayCopy.splice(index, 1);
+    if (element) {
+      arrayFeatures.push(element);
+      arrayCopy.splice(index, 1);
+    }
   }
   return arrayFeatures;
 };
@@ -79,11 +82,12 @@ var generateAdArray = function (objectPoint, arrayLength) {
 var createLabel = function (adObject) {
   var buttonElement = mapPinTemplate.cloneNode(true);
   var img = buttonElement.querySelector('img');
+  var ponytailTags = window.getComputedStyle(mapPinTemplate, ':after').getPropertyValue('borderTopWidth'); // тоже возвращает пустую строку
+  var width = img.offsetWidth; // не работает, дает 0
+  var height = img.offsetHeight; // тоже 0
   img.src = adObject.author.avatar;
-  // У меня почему-то здесь значения вообще не высчитываются, то их нет , то 0 , вероятно нужно повестить обработчики на onload?
-  // var computedStyle = getComputedStyle(mapPinTemplate, '::after').borderTopWidth;
-  buttonElement.style.left = (adObject.location.x - img.offsetWidth) + 'px';
-  buttonElement.style.top = (adObject.location.y - img.offsetHeight - 5) + 'px';
+  buttonElement.style.left = (adObject.location.x - width) + 'px';
+  buttonElement.style.top = (adObject.location.y - height - ponytailTags) + 'px';
   return buttonElement;
 };
 
@@ -122,5 +126,6 @@ ads = generateAdArray(adFeatures, adsQuantity);
 map.classList.remove('map--faded');
 map.insertBefore(createMarkupFragment(ads, createAdsCardMarkup), mapFiltersContainer);
 mapPinContainer.appendChild(createMarkupFragment(ads, createLabel));
+
 
 
