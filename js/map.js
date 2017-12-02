@@ -11,8 +11,13 @@ var mapCardTemplate = mapTemplateContainer.querySelector('.map__card');
 var mapPinMain = document.querySelector('.map__pin--main');
 var noticeForm = document.querySelector('.notice__form--disabled');
 var noticeFormFieldsetAll = noticeForm.querySelectorAll('fieldset');
+var noticeFormFieldTimein = noticeForm.querySelector('#timein');
+var noticeFormFieldTimeout = noticeForm.querySelector('#timeout');
+var noticeFormFieldType = noticeForm.querySelector('#type');
+var noticeFormFieldPrice = noticeForm.querySelector('#price');
+var noticeFormFieldRoomNumber = noticeForm.querySelector('#room_number');
+var noticeFormFieldCapacity = noticeForm.querySelector('#capacity');
 var images = mapPinMain.querySelector('img');
-var widthImages = images.offsetWidth;
 var heightImages = images.offsetHeight;
 var pinPseudoelementStyles = window.getComputedStyle(document.querySelector('.map .map__pin'), ':after');
 var pinPseudoelementHeight = parseInt(pinPseudoelementStyles.getPropertyValue('border-top-width'), 10);
@@ -98,8 +103,7 @@ var createMapPinElement = function (adObject) {
   var imgCopy = buttonElement.querySelector('img');
 
   imgCopy.src = adObject.author.avatar;
-  buttonElement.style.left = (adObject.location.x - widthImages) + 'px';
-  buttonElement.style.top = (adObject.location.y - heightImages - pinPseudoelementHeight) + 'px';
+  buttonElement.style.top = (adObject.location.y - heightImages / 2 - pinPseudoelementHeight) + 'px';
 
   buttonElement.addEventListener('click', onOpenPopupClick);
   return buttonElement;
@@ -193,6 +197,24 @@ var createPopup = function (event) {
   closePopup.addEventListener('click', onPopupCloseButtonClick);
 };
 
+var changeDependentNoticeFormShelf = function (event, noticeFormField) {
+  var current = event.target;
+  noticeFormField.selectedIndex = current.selectedIndex;
+};
+
+var setMinimumPriceNoticeForm = function (event) {
+  var current = event.target;
+  var valueSelected = current.options[current.selectedIndex].value;
+  var minimumCostHousing = {
+    flat: 1000,
+    bungalo: 0,
+    house: 5000,
+    palace: 10000
+  };
+
+  noticeFormFieldPrice.minlength = minimumCostHousing[valueSelected];
+};
+
 var onPopupCloseButtonKeydown = function (event) {
   if (event.keyCode === ESC_KEYCODE) {
     removePopup();
@@ -209,10 +231,38 @@ var onPopupCloseButtonClick = function () {
   removePopup();
 };
 
+var onFormFieldTimeinChange = function (event) {
+  changeDependentNoticeFormShelf(event, noticeFormFieldTimeout);
+};
+
+var onFormFieldTimeoutChange = function (event) {
+  changeDependentNoticeFormShelf(event, noticeFormFieldTimein);
+};
+
+var onFormFieldRoomNumberChange = function (event) {
+  changeDependentNoticeFormShelf(event, noticeFormFieldCapacity);
+};
+
+var onFormFieldTypeChange = function (event) {
+  setMinimumPriceNoticeForm(event);
+};
+
+var onFormInvalid = function (event) {
+  var current = event.target;
+  current.style.borderColor = 'rgb(255, 0, 0)';
+};
+
 noticeFormFieldsetAll.disabled = true;
 
 ads = generateAdArray(adFeatures, adsQuantity);
 
 mapPinMain.addEventListener('mouseup', onMainPinMouseup);
 
+noticeFormFieldTimein.addEventListener('change', onFormFieldTimeinChange);
+noticeFormFieldTimeout.addEventListener('change', onFormFieldTimeoutChange);
 
+noticeFormFieldType.addEventListener('change', onFormFieldTypeChange);
+
+noticeFormFieldRoomNumber.addEventListener('change', onFormFieldRoomNumberChange);
+
+noticeForm.addEventListener('invalid', onFormInvalid, true);
