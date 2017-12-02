@@ -9,11 +9,16 @@ var mapFiltersContainer = map.querySelector('.map__filters-container');
 var mapTemplateContainer = document.querySelector('template').content;
 var mapPinTemplate = mapTemplateContainer.querySelector('.map__pin');
 var mapCardTemplate = mapTemplateContainer.querySelector('.map__card');
-var ads;
+var activePin = document.querySelector('.map__pin--main');
+var noticeForm = document.querySelector('.notice__form--disabled');
+var noticeFormFieldsetAll = noticeForm.querySelectorAll('fieldset');
+var images = activePin.querySelector('img');
+var widthImages = images.offsetWidth;
+var heightImages = images.offsetHeight;
+var pinPseudoelementStyles = window.getComputedStyle(document.querySelector('.map .map__pin'), ':after');
+var pinPseudoelementHeight = parseInt(pinPseudoelementStyles.getPropertyValue('border-top-width'), 10);
 var adsQuantity = 8;
-var initialMark = document.querySelector('.map__pin--main');
-var form = document.querySelector('.notice__form--disabled');
-var fieldset = form.querySelectorAll('fieldset');
+var ads;
 var popup;
 var closePopup;
 var activeMark;
@@ -30,33 +35,31 @@ var getRandomInteger = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-var creatingUrlAvatar = function (photoNumber) {
-  var firstNumber = '';
-  if (photoNumber < 9) {
-    firstNumber = 0;
-  }
-  return 'img/avatars/user' + firstNumber + photoNumber + '.png';
+var createAvatarUrl = function (userIndex) {
+  return 'img/avatars/user' + (userIndex < 10 ? 0 : '') + userIndex + '.png';
 };
 
 var getRandomSubArray = function (arrayElements) {
-  var arrayFeatures = [];
-  var index;
+  var arrayCopy = arrayElements.slice();
+  var arrayCopyLengt = arrayCopy.length;
+  var _randomSubaArray = [];
+  var randomArrayCopyIndex;
   var element;
   var i;
-  var randomArrayElement;
-  var arrayCopy = arrayElements.slice();
-  for (i = 0, randomArrayElement = getRandomInteger(1, arrayCopy.length); i < randomArrayElement; i++) {
-    index = getRandomInteger(0, getRandomInteger(0, arrayCopy.length));
-    element = arrayCopy[index];
-    if (element) {
-      arrayFeatures.push(element);
-      arrayCopy.splice(index, 1);
-    }
+  var randomSubaArrayLength;
+
+  for (i = 0, randomSubaArrayLength = getRandomInteger(1, arrayCopyLengt); i < randomSubaArrayLength; i++) {
+    randomArrayCopyIndex = getRandomInteger(0, getRandomInteger(0, arrayCopyLengt - 1));
+    element = arrayCopy[randomArrayCopyIndex];
+    _randomSubaArray.push(element);
+    arrayCopy.splice(randomArrayCopyIndex, 1);
+    arrayCopyLengt -= 1;
   }
-  return arrayFeatures;
+
+  return _randomSubaArray;
 };
 
-var generateAdObject = function (objectPoint, count) {
+var generateAdObject = function (mockupDataObject, count) {
   var adObject = {
     author: {},
     offer: {},
@@ -64,42 +67,41 @@ var generateAdObject = function (objectPoint, count) {
   };
   adObject.location.x = getRandomInteger(300, 900);
   adObject.location.y = getRandomInteger(100, 500);
-  adObject.author.avatar = creatingUrlAvatar(count + 1);
-  adObject.offer.title = objectPoint.titles[count];
+  adObject.author.avatar = createAvatarUrl(count + 1);
+  adObject.offer.title = mockupDataObject.titles[count];
   adObject.offer.address = adObject.location.x + ', ' + adObject.location.y;
   adObject.offer.price = getRandomInteger(1000, 1000000);
-  adObject.offer.type = objectPoint.types[getRandomInteger(0, objectPoint.types.length)];
+  adObject.offer.type = mockupDataObject.types[getRandomInteger(0, mockupDataObject.types.length)];
   adObject.offer.rooms = getRandomInteger(1, 5);
   adObject.offer.guests = getRandomInteger(10, 100);
-  adObject.offer.checkin = objectPoint.checkins[getRandomInteger(0, objectPoint.checkins.length - 1)];
-  adObject.offer.checkout = objectPoint.checkouts[getRandomInteger(0, objectPoint.checkouts.length - 1)];
-  adObject.offer.features = getRandomSubArray(objectPoint.features);
+  adObject.offer.checkin = mockupDataObject.checkins[getRandomInteger(0, mockupDataObject.checkins.length - 1)];
+  adObject.offer.checkout = mockupDataObject.checkouts[getRandomInteger(0, mockupDataObject.checkouts.length - 1)];
+  adObject.offer.features = getRandomSubArray(mockupDataObject.features);
   adObject.offer.description = '';
   adObject.offer.photos = [];
+
   return adObject;
 };
 
 var generateAdArray = function (objectPoint, arrayLength) {
   var maps = [];
   var i;
+
   for (i = 0; i < arrayLength; i++) {
     maps[i] = generateAdObject(objectPoint, i);
   }
+
   return maps;
 };
 
-var createLabel = function (adObject) {
-  var img = mapPinContainer.querySelector('img');
-  var widthImg = img.offsetWidth;
-  var heightImg = img.offsetHeight;
-  var ponytailTags = window.getComputedStyle(document.querySelector('.map .map__pin'), ':after');
-  var ponytailTagsHeight = ponytailTags.getPropertyValue('border-top-width');
-  var ponytailTagsWIdthNomber = +(ponytailTagsHeight.substr(0, ponytailTagsHeight.length - 2));
+var createMapPinElement = function (adObject) {
   var buttonElement = mapPinTemplate.cloneNode(true);
   var imgCopy = buttonElement.querySelector('img');
+
   imgCopy.src = adObject.author.avatar;
-  buttonElement.style.left = (adObject.location.x - widthImg) + 'px';
-  buttonElement.style.top = (adObject.location.y - heightImg - ponytailTagsWIdthNomber) + 'px';
+  buttonElement.style.left = (adObject.location.x - widthImages) + 'px';
+  buttonElement.style.top = (adObject.location.y - heightImages - pinPseudoelementHeight) + 'px';
+
   return buttonElement;
 };
 
@@ -109,6 +111,7 @@ var createAdsCardMarkup = function (adObject) {
   var i;
   var feature = '';
   var featuresLength;
+
   adsElement.querySelector('h3').textContent = adObject.offer.title;
   adsElement.querySelector('p > small').textContent = adObject.offer.address;
   adsElement.querySelector('.popup__price').innerHTML = adObject.offer.price + ' &#x20bd;/ночь';
@@ -120,57 +123,61 @@ var createAdsCardMarkup = function (adObject) {
     feature += '<li class="feature feature--' + adObject.offer.features[i] + '"></li>';
   }
   adsElement.querySelector('.popup__features').innerHTML = feature;
+
   return adsElement;
 };
 
-var createMarkupFragment = function (adObject, createElements) {
+var createMarkupFragment = function (dataCard, createElements) {
   var documentFragment = document.createDocumentFragment();
+  var i;
+  var mapLength;
 
-  if (Array.isArray(adObject)) {
-    var i;
-    var mapLength;
-    for (i = 0, mapLength = adObject.length; i < mapLength; i++) {
-      documentFragment.appendChild(createElements(adObject[i]));
+  if (Array.isArray(dataCard)) {
+    for (i = 0, mapLength = dataCard.length; i < mapLength; i++) {
+      documentFragment.appendChild(createElements(dataCard[i]));
     }
   } else {
-    documentFragment.appendChild(createElements(adObject));
+    documentFragment.appendChild(createElements(dataCard));
   }
+
   return documentFragment;
 };
 
-var onMarkMouseup = function () {
-  map.classList.remove('map--faded');
-  mapPinContainer.appendChild(createMarkupFragment(ads, createLabel));
-  form.classList.remove('notice__form--disabled');
+var onMainPinMouseup = function () {
   var i;
-  var fieldsetArrayLength;
-  for (i = 0, fieldsetArrayLength = fieldset.length; i < fieldsetArrayLength; i++) {
-    fieldset[i].disabled = false;
+  var noticeFormFieldsetQuantity;
+
+  if (map.classList.contains('map--faded')) {
+    map.classList.remove('map--faded');
+    mapPinContainer.appendChild(createMarkupFragment(ads, createMapPinElement));
+    noticeForm.classList.remove('notice__form--disabled');
+    for (i = 0, noticeFormFieldsetQuantity = noticeFormFieldsetAll.length; i < noticeFormFieldsetQuantity; i++) {
+      noticeFormFieldsetAll[i].disabled = false;
+    }
   }
 };
+var removePopup = function () {
+  popup && popup.remove();
+  activeMark && activeMark.classList.remove('map__pin--active');
+};
 
-var showPopup = function (evt) {
+var createPopup = function (event) {
   var i;
   var adsLength;
-  var current = evt.target;
+  var current = event.target;
   var button = current.closest('.map__pin');
   var img;
   var initialButton = current.closest('.map__pin--main');
   var positionElementInObject;
+
   if (initialButton) {
     return;
   }
-  if (button) {
-    if (activeMark) {
-      activeMark.classList.remove('map__pin--active');
-    }
-    if (popup) {
-      popup.remove();
-    }
 
-    if (button.classList.contains('pin--active')) {
-      button.classList.remove('pin--active');
-    }
+  if (button) {
+
+    removePopup();
+
     img = button.querySelector('img');
     button.classList.add('map__pin--active');
     activeMark = button;
@@ -186,44 +193,37 @@ var showPopup = function (evt) {
     closePopup = popup.querySelector('.popup__close');
     popup.querySelector('.popup__avatar').src = positionElementInObject.author.avatar;
 
-    closePopup.addEventListener('click', onCloseContainerClick);
+    closePopup.addEventListener('click', onPopupCloseButtonClick);
   }
 };
 
-var hidePopup = function () {
-  if (popup) {
-    popup.remove();
-  }
-  if (activeMark) {
-    activeMark.classList.remove('map__pin--active');
+var onPopupCloseButtonKeydown = function (event) {
+  if (event.keyCode === ESC_KEYCODE) {
+    removePopup();
   }
 };
 
-var onClosePopupKeydown = function (evt) {
-  if (evt.keyCode === ESC_KEYCODE) {
-    hidePopup();
+var onOpenPopupClick = function (event) {
+  createPopup(event);
+
+  document.addEventListener('keydown', onPopupCloseButtonKeydown);
+};
+
+var onPinKeydown = function (event) {
+  if (event.keyCode === ENTER_KEYCODE) {
+    createPopup(event);
   }
 };
 
-var onOpenPopupClick = function (evt) {
-  showPopup(evt);
-
-  document.addEventListener('keydown', onClosePopupKeydown);
+var onPopupCloseButtonClick = function () {
+  removePopup();
 };
 
-var onOpenPopupKeydown = function (evt) {
-  if (evt.keyCode === ENTER_KEYCODE) {
-    showPopup(evt);
-  }
-};
-
-var onCloseContainerClick = function () {
-  hidePopup();
-};
+noticeFormFieldsetAll.disabled = true;
 
 ads = generateAdArray(adFeatures, adsQuantity);
 
-initialMark.addEventListener('mouseup', onMarkMouseup);
+activePin.addEventListener('mouseup', onMainPinMouseup);
 mapPinContainer.addEventListener('click', onOpenPopupClick);
-mapPinContainer.addEventListener('keydown', onOpenPopupKeydown);
+mapPinContainer.addEventListener('keydown', onPinKeydown);
 
