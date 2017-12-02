@@ -1,7 +1,6 @@
 'use strict';
 
 var ESC_KEYCODE = 27;
-var ENTER_KEYCODE = 13;
 
 var map = document.querySelector('.map');
 var mapPinContainer = map.querySelector('.map__pins');
@@ -9,10 +8,10 @@ var mapFiltersContainer = map.querySelector('.map__filters-container');
 var mapTemplateContainer = document.querySelector('template').content;
 var mapPinTemplate = mapTemplateContainer.querySelector('.map__pin');
 var mapCardTemplate = mapTemplateContainer.querySelector('.map__card');
-var activePin = document.querySelector('.map__pin--main');
+var mapPinMain = document.querySelector('.map__pin--main');
 var noticeForm = document.querySelector('.notice__form--disabled');
 var noticeFormFieldsetAll = noticeForm.querySelectorAll('fieldset');
-var images = activePin.querySelector('img');
+var images = mapPinMain.querySelector('img');
 var widthImages = images.offsetWidth;
 var heightImages = images.offsetHeight;
 var pinPseudoelementStyles = window.getComputedStyle(document.querySelector('.map .map__pin'), ':after');
@@ -21,7 +20,7 @@ var adsQuantity = 8;
 var ads;
 var popup;
 var closePopup;
-var activeMark;
+var activePin;
 
 var adFeatures = {
   titles: ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домиик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'],
@@ -102,6 +101,7 @@ var createMapPinElement = function (adObject) {
   buttonElement.style.left = (adObject.location.x - widthImages) + 'px';
   buttonElement.style.top = (adObject.location.y - heightImages - pinPseudoelementHeight) + 'px';
 
+  buttonElement.addEventListener('click', onOpenPopupClick);
   return buttonElement;
 };
 
@@ -157,8 +157,12 @@ var onMainPinMouseup = function () {
   }
 };
 var removePopup = function () {
-  popup && popup.remove();
-  activeMark && activeMark.classList.remove('map__pin--active');
+  if (popup) {
+    popup.remove();
+  }
+  if (activePin) {
+    activePin.classList.remove('map__pin--active');
+  }
 };
 
 var createPopup = function (event) {
@@ -167,34 +171,26 @@ var createPopup = function (event) {
   var current = event.target;
   var button = current.closest('.map__pin');
   var img;
-  var initialButton = current.closest('.map__pin--main');
   var positionElementInObject;
 
-  if (initialButton) {
-    return;
-  }
+  removePopup();
 
-  if (button) {
+  img = button.querySelector('img');
+  button.classList.add('map__pin--active');
+  activePin = button;
 
-    removePopup();
-
-    img = button.querySelector('img');
-    button.classList.add('map__pin--active');
-    activeMark = button;
-
-    for (i = 0, adsLength = ads.length; i < adsLength; i++) {
-      if (img.src.indexOf(ads[i].author.avatar) !== -1) {
-        map.insertBefore(createMarkupFragment(ads[i], createAdsCardMarkup), mapFiltersContainer);
-        positionElementInObject = ads[i];
-      }
+  for (i = 0, adsLength = ads.length; i < adsLength; i++) {
+    if (img.src.indexOf(ads[i].author.avatar) !== -1) {
+      map.insertBefore(createMarkupFragment(ads[i], createAdsCardMarkup), mapFiltersContainer);
+      positionElementInObject = ads[i];
     }
-
-    popup = document.querySelector('.popup');
-    closePopup = popup.querySelector('.popup__close');
-    popup.querySelector('.popup__avatar').src = positionElementInObject.author.avatar;
-
-    closePopup.addEventListener('click', onPopupCloseButtonClick);
   }
+
+  popup = document.querySelector('.popup');
+  closePopup = popup.querySelector('.popup__close');
+  popup.querySelector('.popup__avatar').src = positionElementInObject.author.avatar;
+
+  closePopup.addEventListener('click', onPopupCloseButtonClick);
 };
 
 var onPopupCloseButtonKeydown = function (event) {
@@ -209,12 +205,6 @@ var onOpenPopupClick = function (event) {
   document.addEventListener('keydown', onPopupCloseButtonKeydown);
 };
 
-var onPinKeydown = function (event) {
-  if (event.keyCode === ENTER_KEYCODE) {
-    createPopup(event);
-  }
-};
-
 var onPopupCloseButtonClick = function () {
   removePopup();
 };
@@ -223,7 +213,6 @@ noticeFormFieldsetAll.disabled = true;
 
 ads = generateAdArray(adFeatures, adsQuantity);
 
-activePin.addEventListener('mouseup', onMainPinMouseup);
-mapPinContainer.addEventListener('click', onOpenPopupClick);
-mapPinContainer.addEventListener('keydown', onPinKeydown);
+mapPinMain.addEventListener('mouseup', onMainPinMouseup);
+
 
