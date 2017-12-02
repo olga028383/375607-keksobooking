@@ -17,6 +17,7 @@ var noticeFormFieldType = noticeForm.querySelector('#type');
 var noticeFormFieldPrice = noticeForm.querySelector('#price');
 var noticeFormFieldRoomNumber = noticeForm.querySelector('#room_number');
 var noticeFormFieldCapacity = noticeForm.querySelector('#capacity');
+var noticeFormButton = noticeForm.querySelector('.form__submit');
 var images = mapPinMain.querySelector('img');
 var heightImages = images.offsetHeight;
 var pinPseudoelementStyles = window.getComputedStyle(document.querySelector('.map .map__pin'), ':after');
@@ -103,6 +104,7 @@ var createMapPinElement = function (adObject) {
   var imgCopy = buttonElement.querySelector('img');
 
   imgCopy.src = adObject.author.avatar;
+  buttonElement.style.left = (adObject.location.x) + 'px';
   buttonElement.style.top = (adObject.location.y - heightImages / 2 - pinPseudoelementHeight) + 'px';
 
   buttonElement.addEventListener('click', onOpenPopupClick);
@@ -247,9 +249,12 @@ var onFormFieldTypeChange = function (event) {
   setMinimumPriceNoticeForm(event);
 };
 
-var onFormInvalid = function (event) {
-  var current = event.target;
-  current.style.borderColor = 'rgb(255, 0, 0)';
+var onFormButtonClick = function () {
+
+  noticeForm.addEventListener('invalid', function (eventField) {
+    var current = eventField.target;
+    current.style.borderColor = 'rgb(255, 0, 0)';
+  });
 };
 
 noticeFormFieldsetAll.disabled = true;
@@ -265,4 +270,4 @@ noticeFormFieldType.addEventListener('change', onFormFieldTypeChange);
 
 noticeFormFieldRoomNumber.addEventListener('change', onFormFieldRoomNumberChange);
 
-noticeForm.addEventListener('invalid', onFormInvalid, true);
+noticeFormButton.addEventListener('click', onFormButtonClick);
