@@ -1,13 +1,26 @@
 'use strict';
 
+var ESC_KEYCODE = 27;
+
 var map = document.querySelector('.map');
 var mapPinContainer = map.querySelector('.map__pins');
 var mapFiltersContainer = map.querySelector('.map__filters-container');
 var mapTemplateContainer = document.querySelector('template').content;
 var mapPinTemplate = mapTemplateContainer.querySelector('.map__pin');
 var mapCardTemplate = mapTemplateContainer.querySelector('.map__card');
-var ads;
+var mapPinMain = document.querySelector('.map__pin--main');
+var noticeForm = document.querySelector('.notice__form--disabled');
+var noticeFormFieldsetAll = noticeForm.querySelectorAll('fieldset');
+var images = mapPinMain.querySelector('img');
+var widthImages = images.offsetWidth;
+var heightImages = images.offsetHeight;
+var pinPseudoelementStyles = window.getComputedStyle(document.querySelector('.map .map__pin'), ':after');
+var pinPseudoelementHeight = parseInt(pinPseudoelementStyles.getPropertyValue('border-top-width'), 10);
 var adsQuantity = 8;
+var ads;
+var popup;
+var closePopup;
+var activePin;
 
 var adFeatures = {
   titles: ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домиик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'],
@@ -21,33 +34,31 @@ var getRandomInteger = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-var creatingUrlAvatar = function (photoNumber) {
-  var firstNumber = '';
-  if (photoNumber < 9) {
-    firstNumber = 0;
-  }
-  return 'img/avatars/user' + firstNumber + photoNumber + '.png';
+var createAvatarUrl = function (userIndex) {
+  return 'img/avatars/user' + (userIndex < 10 ? 0 : '') + userIndex + '.png';
 };
 
 var getRandomSubArray = function (arrayElements) {
-  var arrayFeatures = [];
-  var index;
+  var arrayCopy = arrayElements.slice();
+  var arrayCopyLengt = arrayCopy.length;
+  var _randomSubaArray = [];
+  var randomArrayCopyIndex;
   var element;
   var i;
-  var randomArrayElement;
-  var arrayCopy = arrayElements.slice();
-  for (i = 0, randomArrayElement = getRandomInteger(1, arrayCopy.length); i < randomArrayElement; i++) {
-    index = getRandomInteger(0, getRandomInteger(0, arrayCopy.length));
-    element = arrayCopy[index];
-    if (element) {
-      arrayFeatures.push(element);
-      arrayCopy.splice(index, 1);
-    }
+  var randomSubaArrayLength;
+
+  for (i = 0, randomSubaArrayLength = getRandomInteger(1, arrayCopyLengt); i < randomSubaArrayLength; i++) {
+    randomArrayCopyIndex = getRandomInteger(0, getRandomInteger(0, arrayCopyLengt - 1));
+    element = arrayCopy[randomArrayCopyIndex];
+    _randomSubaArray.push(element);
+    arrayCopy.splice(randomArrayCopyIndex, 1);
+    arrayCopyLengt -= 1;
   }
-  return arrayFeatures;
+
+  return _randomSubaArray;
 };
 
-var generateAdObject = function (objectPoint, count) {
+var generateAdObject = function (mockupDataObject, count) {
   var adObject = {
     author: {},
     offer: {},
@@ -55,42 +66,42 @@ var generateAdObject = function (objectPoint, count) {
   };
   adObject.location.x = getRandomInteger(300, 900);
   adObject.location.y = getRandomInteger(100, 500);
-  adObject.author.avatar = creatingUrlAvatar(count + 1);
-  adObject.offer.title = objectPoint.titles[count];
+  adObject.author.avatar = createAvatarUrl(count + 1);
+  adObject.offer.title = mockupDataObject.titles[count];
   adObject.offer.address = adObject.location.x + ', ' + adObject.location.y;
   adObject.offer.price = getRandomInteger(1000, 1000000);
-  adObject.offer.type = objectPoint.types[getRandomInteger(0, objectPoint.types.length)];
+  adObject.offer.type = mockupDataObject.types[getRandomInteger(0, mockupDataObject.types.length)];
   adObject.offer.rooms = getRandomInteger(1, 5);
   adObject.offer.guests = getRandomInteger(10, 100);
-  adObject.offer.checkin = objectPoint.checkins[getRandomInteger(0, objectPoint.checkins.length - 1)];
-  adObject.offer.checkout = objectPoint.checkouts[getRandomInteger(0, objectPoint.checkouts.length - 1)];
-  adObject.offer.features = getRandomSubArray(objectPoint.features);
+  adObject.offer.checkin = mockupDataObject.checkins[getRandomInteger(0, mockupDataObject.checkins.length - 1)];
+  adObject.offer.checkout = mockupDataObject.checkouts[getRandomInteger(0, mockupDataObject.checkouts.length - 1)];
+  adObject.offer.features = getRandomSubArray(mockupDataObject.features);
   adObject.offer.description = '';
   adObject.offer.photos = [];
+
   return adObject;
 };
 
 var generateAdArray = function (objectPoint, arrayLength) {
   var maps = [];
   var i;
+
   for (i = 0; i < arrayLength; i++) {
     maps[i] = generateAdObject(objectPoint, i);
   }
+
   return maps;
 };
 
-var createLabel = function (adObject) {
-  var img = mapPinContainer.querySelector('img');
-  var widthImg = img.offsetWidth;
-  var heightImg = img.offsetHeight;
-  var ponytailTags = window.getComputedStyle(document.querySelector('.map .map__pin'), ':after');
-  var ponytailTagsHeight = ponytailTags.getPropertyValue('border-top-width');
-  var ponytailTagsWIdthNomber = +(ponytailTagsHeight.substr(0, ponytailTagsHeight.length - 2));
+var createMapPinElement = function (adObject) {
   var buttonElement = mapPinTemplate.cloneNode(true);
   var imgCopy = buttonElement.querySelector('img');
+
   imgCopy.src = adObject.author.avatar;
-  buttonElement.style.left = (adObject.location.x - widthImg) + 'px';
-  buttonElement.style.top = (adObject.location.y - heightImg - ponytailTagsWIdthNomber) + 'px';
+  buttonElement.style.left = (adObject.location.x - widthImages) + 'px';
+  buttonElement.style.top = (adObject.location.y - heightImages - pinPseudoelementHeight) + 'px';
+
+  buttonElement.addEventListener('click', onOpenPopupClick);
   return buttonElement;
 };
 
@@ -100,6 +111,7 @@ var createAdsCardMarkup = function (adObject) {
   var i;
   var feature = '';
   var featuresLength;
+
   adsElement.querySelector('h3').textContent = adObject.offer.title;
   adsElement.querySelector('p > small').textContent = adObject.offer.address;
   adsElement.querySelector('.popup__price').innerHTML = adObject.offer.price + ' &#x20bd;/ночь';
@@ -107,25 +119,100 @@ var createAdsCardMarkup = function (adObject) {
   adsElement.querySelector('h4 + p').textContent = adObject.offer.rooms + ' для ' + adObject.offer.guests + ' гостей';
   adsElement.querySelector('h4 + p + p').textContent = 'Заезд после ' + adObject.offer.checkin + ', выезд до ' + adObject.offer.checkout;
   adsElement.querySelector('.popup__features + p').textContent = adObject.offer.description;
-  adsElement.querySelector('.popup__avatar').src = adObject.author.avatar;
   for (i = 0, featuresLength = adObject.offer.features.length; i < featuresLength; i++) {
     feature += '<li class="feature feature--' + adObject.offer.features[i] + '"></li>';
   }
   adsElement.querySelector('.popup__features').innerHTML = feature;
+
   return adsElement;
 };
 
-var createMarkupFragment = function (adObject, createElements) {
+var createMarkupFragment = function (dataCard, createElements) {
   var documentFragment = document.createDocumentFragment();
   var i;
   var mapLength;
-  for (i = 0, mapLength = adObject.length; i < mapLength; i++) {
-    documentFragment.appendChild(createElements(adObject[i]));
+
+  if (Array.isArray(dataCard)) {
+    for (i = 0, mapLength = dataCard.length; i < mapLength; i++) {
+      documentFragment.appendChild(createElements(dataCard[i]));
+    }
+  } else {
+    documentFragment.appendChild(createElements(dataCard));
   }
+
   return documentFragment;
 };
 
+var onMainPinMouseup = function () {
+  var i;
+  var noticeFormFieldsetQuantity;
+
+  if (map.classList.contains('map--faded')) {
+    map.classList.remove('map--faded');
+    mapPinContainer.appendChild(createMarkupFragment(ads, createMapPinElement));
+    noticeForm.classList.remove('notice__form--disabled');
+    for (i = 0, noticeFormFieldsetQuantity = noticeFormFieldsetAll.length; i < noticeFormFieldsetQuantity; i++) {
+      noticeFormFieldsetAll[i].disabled = false;
+    }
+  }
+};
+var removePopup = function () {
+  if (popup) {
+    popup.remove();
+  }
+  if (activePin) {
+    activePin.classList.remove('map__pin--active');
+  }
+};
+
+var createPopup = function (event) {
+  var i;
+  var adsLength;
+  var current = event.target;
+  var button = current.closest('.map__pin');
+  var img;
+  var positionElementInObject;
+
+  removePopup();
+
+  img = button.querySelector('img');
+  button.classList.add('map__pin--active');
+  activePin = button;
+
+  for (i = 0, adsLength = ads.length; i < adsLength; i++) {
+    if (img.src.indexOf(ads[i].author.avatar) !== -1) {
+      map.insertBefore(createMarkupFragment(ads[i], createAdsCardMarkup), mapFiltersContainer);
+      positionElementInObject = ads[i];
+    }
+  }
+
+  popup = document.querySelector('.popup');
+  closePopup = popup.querySelector('.popup__close');
+  popup.querySelector('.popup__avatar').src = positionElementInObject.author.avatar;
+
+  closePopup.addEventListener('click', onPopupCloseButtonClick);
+};
+
+var onPopupCloseButtonKeydown = function (event) {
+  if (event.keyCode === ESC_KEYCODE) {
+    removePopup();
+  }
+};
+
+var onOpenPopupClick = function (event) {
+  createPopup(event);
+
+  document.addEventListener('keydown', onPopupCloseButtonKeydown);
+};
+
+var onPopupCloseButtonClick = function () {
+  removePopup();
+};
+
+noticeFormFieldsetAll.disabled = true;
+
 ads = generateAdArray(adFeatures, adsQuantity);
-map.classList.remove('map--faded');
-map.insertBefore(createMarkupFragment(ads, createAdsCardMarkup), mapFiltersContainer);
-mapPinContainer.appendChild(createMarkupFragment(ads, createLabel));
+
+mapPinMain.addEventListener('mouseup', onMainPinMouseup);
+
+
