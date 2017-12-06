@@ -70,7 +70,6 @@
 
     return maps;
   };
-
   ads = generateAdArray(adFeatures, adsQuantity);
 
   window.map = {
