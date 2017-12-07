@@ -2,8 +2,10 @@
 
 (function () {
   var ESC_KEYCODE = 27;
-  var mapFiltersContainer = window.data.mapTemplateContainer.querySelector('.map__filters-container');
-  var mapCardTemplate = window.data.mapTemplateContainer.querySelector('.map__card');
+  var map = document.querySelector('.map');
+  var mapTemplateContainer = document.querySelector('template').content;
+  var mapFiltersContainer = mapTemplateContainer.querySelector('.map__filters-container');
+  var mapCardTemplate = mapTemplateContainer.querySelector('.map__card');
   var card;
   var closeCard;
   var activePin;
@@ -52,10 +54,10 @@
     button.classList.add('map__pin--active');
     activePin = button;
 
-    for (i = 0, adsLength = window.map.ads.length; i < adsLength; i++) {
-      if (img.src.indexOf(window.map.ads[i].author.avatar) !== -1) {
-        window.data.map.insertBefore(window.data.createMarkupFragment(window.map.ads[i], createAdsCardMarkup), mapFiltersContainer);
-        positionElementInObject = window.map.ads[i];
+    for (i = 0, adsLength = window.data.ads.length; i < adsLength; i++) {
+      if (img.src.indexOf(window.data.ads[i].author.avatar) !== -1) {
+        map.insertBefore(window.utils.createMarkupFragment(window.data.ads[i], createAdsCardMarkup), mapFiltersContainer);
+        positionElementInObject = window.data.ads[i];
       }
     }
 
@@ -64,6 +66,7 @@
     card.querySelector('.popup__avatar').src = positionElementInObject.author.avatar;
 
     closeCard.addEventListener('click', onCardCloseButtonClick);
+    document.addEventListener('keydown', onCardCloseButtonKeydown);
   };
 
   var onCardCloseButtonKeydown = function (event) {
@@ -72,17 +75,9 @@
     }
   };
 
-  var onCardOpenClick = function (event) {
-    createCard(event);
-
-    document.addEventListener('keydown', onCardCloseButtonKeydown);
-  };
-
   var onCardCloseButtonClick = function () {
     removeCard();
   };
 
-  window.card = {
-    onCardOpenClick: onCardOpenClick
-  };
+  window.card = createCard;
 })();

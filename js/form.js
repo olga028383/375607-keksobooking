@@ -1,13 +1,17 @@
 'use strict';
 
 (function () {
-  var noticeFormFieldTimein = window.data.noticeForm.querySelector('#timein');
-  var noticeFormFieldTimeout = window.data.noticeForm.querySelector('#timeout');
-  var noticeFormFieldType = window.data.noticeForm.querySelector('#type');
-  var noticeFormFieldPrice = window.data.noticeForm.querySelector('#price');
-  var noticeFormFieldRoomNumber = window.data.noticeForm.querySelector('#room_number');
-  var noticeFormFieldCapacity = window.data.noticeForm.querySelector('#capacity');
-  var noticeFormButton = window.data.noticeForm.querySelector('.form__submit');
+  var noticeForm = document.querySelector('.notice__form');
+  var noticeFormFieldsetAll = noticeForm.querySelectorAll('fieldset');
+  var noticeFormFieldTitle = noticeForm.querySelector('#title');
+  var noticeFormFieldTimein = noticeForm.querySelector('#timein');
+  var noticeFormFieldTimeout = noticeForm.querySelector('#timeout');
+  var noticeFormFieldType = noticeForm.querySelector('#type');
+  var noticeFormFieldPrice = noticeForm.querySelector('#price');
+  var noticeFormFieldRoomNumber = noticeForm.querySelector('#room_number');
+  var noticeFormFieldCapacity = noticeForm.querySelector('#capacity');
+  var noticeFormFieldAddress = noticeForm.querySelector('#address');
+  var noticeFormButton = noticeForm.querySelector('.form__submit');
 
   var changeDependentNoticeFormShelf = function (event, noticeFormField) {
     var current = event.target;
@@ -27,40 +31,38 @@
     noticeFormFieldPrice.minlength = minimumCostHousing[valueSelected];
   };
 
-  var onFormFieldTimeinChange = function (event) {
-    changeDependentNoticeFormShelf(event, noticeFormFieldTimeout);
-  };
-
-  var onFormFieldTimeoutChange = function (event) {
-    changeDependentNoticeFormShelf(event, noticeFormFieldTimein);
-  };
-
-  var onFormFieldRoomNumberChange = function (event) {
-    changeDependentNoticeFormShelf(event, noticeFormFieldCapacity);
-  };
-
   var onFormFieldTypeChange = function (event) {
     setMinimumPriceNoticeForm(event);
   };
 
-  var onFormButtonClick = function () {
-
-    window.data.noticeForm.addEventListener('invalid', function (eventField) {
-      var current = eventField.target;
-      current.style.borderColor = 'rgb(255, 0, 0)';
-    });
+  var assignHandlersForLinkedFields = function (field, variableField) {
+    var onFieldChange = function (event) {
+      changeDependentNoticeFormShelf(event, variableField);
+    };
+    field.addEventListener('change', onFieldChange);
   };
 
-  window.data.noticeFormFieldsetAll.disabled = true;
+  var onFormSubmit = function (event) {
+    // Вообще ничерта не получается с формой
+    if (!noticeFormFieldAddress.validity.valueMissing ||
+      !noticeFormFieldTitle.validity.valueMissing ||
+      !noticeFormFieldPrice.validity.valueMissing) {
+      event.preventDefault();
 
-  noticeFormFieldTimein.addEventListener('change', onFormFieldTimeinChange);
-  noticeFormFieldTimeout.addEventListener('change', onFormFieldTimeoutChange);
+      noticeFormFieldAddress.style.borderColor = 'rgb(255, 0, 0)';
+      noticeFormFieldTitle.style.borderColor = 'rgb(255, 0, 0)';
+      noticeFormFieldPrice.style.borderColor = 'rgb(255, 0, 0)';
+    }
+  };
+
+  noticeFormFieldsetAll.disabled = true;
+
+  assignHandlersForLinkedFields(noticeFormFieldTimein, noticeFormFieldTimeout);
+  assignHandlersForLinkedFields(noticeFormFieldTimeout, noticeFormFieldTimein);
+  assignHandlersForLinkedFields(noticeFormFieldRoomNumber, noticeFormFieldCapacity);
 
   noticeFormFieldType.addEventListener('change', onFormFieldTypeChange);
-
-  noticeFormFieldRoomNumber.addEventListener('change', onFormFieldRoomNumberChange);
-
-  noticeFormButton.addEventListener('click', onFormButtonClick);
+  noticeForm.addEventListener('submit', onFormSubmit);
 
 
 })();
