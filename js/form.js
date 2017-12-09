@@ -2,8 +2,6 @@
 
 (function () {
   var noticeForm = document.querySelector('.notice__form');
-  var noticeFormFieldsetAll = noticeForm.querySelectorAll('fieldset');
-  var noticeFormFieldTitle = noticeForm.querySelector('#title');
   var noticeFormFieldTimein = noticeForm.querySelector('#timein');
   var noticeFormFieldTimeout = noticeForm.querySelector('#timeout');
   var noticeFormFieldType = noticeForm.querySelector('#type');
@@ -56,7 +54,6 @@
       noticeFormFieldCapacity.options[optionLength - 1].selected = true;
     }
   };
-  noticeFormFieldsetAll.disabled = true;
 
   assignHandlersForLinkedFields(noticeFormFieldTimein, changeFieldTimeout);
   assignHandlersForLinkedFields(noticeFormFieldTimeout, changeFieldTimein);
@@ -66,46 +63,44 @@
     event.preventDefault();
   });
 
-  noticeFormFieldTitle.addEventListener('invalid', function (event) {
-    var target = event.target;
-    if (noticeFormFieldTitle.validity.tooLong) {
-      target.setCustomValidity('Максимальное количество ' + target.maxLength + ' символов.');
-      noticeFormFieldTitle.style.border = window.utils.setBorder(true, 'red');
-    } else if (noticeFormFieldTitle.validity.tooShort) {
-      target.setCustomValidity('Минимальное количество ' + target.minLength + ' символов.');
-      noticeFormFieldTitle.style.border = window.utils.setBorder(true, 'red');
-    } else if (noticeFormFieldTitle.validity.valueMissing) {
-      target.setCustomValidity('Поле обязательно для заполнения');
-      noticeFormFieldTitle.style.border = window.utils.setBorder(true, 'red');
-    } else {
-      target.setCustomValidity('');
-    }
-  });
+  var onFormSubmit = function (event) {
+    event.preventDefault();
 
-  noticeFormFieldAddress.addEventListener('invalid', function (event) {
-    var target = event.target;
-    if (noticeFormFieldAddress.validity.valueMissing) {
-      target.setCustomValidity('Поле обязательно для заполнения');
+    var error = false;
+
+    if (noticeFormFieldPrice.value < noticeFormFieldPrice.minLength) {
+      noticeFormFieldPrice.style.border = window.utils.setBorder(true, 'red');
+      error = true;
+    }
+
+    if (noticeFormFieldPrice.value > noticeFormFieldPrice.maxLength) {
+      noticeFormFieldPrice.style.border = window.utils.setBorder(true, 'red');
+      error = true;
+    }
+
+    if (noticeFormFieldAddress.value.length === 0) {
       noticeFormFieldAddress.style.border = window.utils.setBorder(true, 'red');
-    } else {
-      target.setCustomValidity('');
+      error = true;
     }
-  });
 
-  // не происходит валидация цены формы, не пойму почему?
-  noticeFormFieldPrice.addEventListener('invalid', function () {
-    var target = event.target;
-    if (noticeFormFieldPrice.validity.tooLong) {
-      target.setCustomValidity('Максимальное количество ' + target.maxLength + ' символов.');
-      noticeFormFieldPrice.style.border = window.utils.setBorder(true, 'red');
-    } else if (noticeFormFieldPrice.validity.tooShort) {
-      target.setCustomValidity('Минимальное количество ' + target.minLength + ' символов.');
-      noticeFormFieldPrice.style.border = window.utils.setBorder(true, 'red');
-    } else if (noticeFormFieldPrice.validity.valueMissing) {
-      target.setCustomValidity('Поле обязательно для заполнения');
-      noticeFormFieldPrice.style.border = window.utils.setBorder(true, 'red');
+    if (noticeFormFieldCapacity.value > 0 && noticeFormFieldRoomNumber.value < 100) {
+      if (noticeFormFieldRoomNumber.value < noticeFormFieldCapacity.value) {
+        noticeFormFieldCapacity.style.border = window.utils.setBorder(true, 'red');
+        error = true;
+      } else {
+        noticeFormFieldCapacity.style.border = window.utils.setBorder(false);
+      }
+    } else if (noticeFormFieldCapacity.value === 0 && noticeFormFieldRoomNumber.value === 100) {
+      noticeFormFieldCapacity.style.border = window.utils.setBorder(false);
     } else {
-      target.setCustomValidity('');
+      noticeFormFieldCapacity.style.border = window.utils.setBorder(true, 'red');
+      error = true;
     }
-  });
+
+    if (!error) {
+      noticeForm.submit();
+    }
+
+  };
+  noticeForm.addEventListener('submit', onFormSubmit);
 })();
