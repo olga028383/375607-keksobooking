@@ -31,6 +31,7 @@
 
     return adsElement;
   };
+
   var removeCard = function () {
     if (card) {
       card.remove();
@@ -38,6 +39,8 @@
     if (activePin) {
       activePin.classList.remove('map__pin--active');
     }
+
+    document.removeEventListener('keydown', onCardCloseEscKeydown);
   };
 
   var createCard = function (event) {
@@ -66,10 +69,10 @@
     card.querySelector('.popup__avatar').src = positionElementInObject.author.avatar;
 
     closeCard.addEventListener('click', onCardCloseButtonClick);
-    document.addEventListener('keydown', onCardCloseButtonKeydown);
+    document.addEventListener('keydown', onCardCloseEscKeydown);
   };
 
-  var onCardCloseButtonKeydown = function (event) {
+  var onCardCloseEscKeydown = function (event) {
     if (event.keyCode === ESC_KEYCODE) {
       removeCard();
     }

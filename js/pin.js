@@ -23,6 +23,7 @@
   var onPinClick = function (event) {
     window.card(event);
   };
+
   window.pin = {
     createMapPinElement: createMapPinElement
   };

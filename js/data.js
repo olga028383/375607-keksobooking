@@ -15,26 +15,6 @@
     return 'img/avatars/user' + (userIndex < 10 ? 0 : '') + userIndex + '.png';
   };
 
-  var getRandomSubArray = function (arrayElements) {
-    var arrayCopy = arrayElements.slice();
-    var arrayCopyLengt = arrayCopy.length;
-    var _randomSubaArray = [];
-    var randomArrayCopyIndex;
-    var element;
-    var i;
-    var randomSubaArrayLength;
-
-    for (i = 0, randomSubaArrayLength = window.utils.getRandomInteger(1, arrayCopyLengt); i < randomSubaArrayLength; i++) {
-      randomArrayCopyIndex = window.utils.getRandomInteger(0, window.utils.getRandomInteger(0, arrayCopyLengt - 1));
-      element = arrayCopy[randomArrayCopyIndex];
-      _randomSubaArray.push(element);
-      arrayCopy.splice(randomArrayCopyIndex, 1);
-      arrayCopyLengt -= 1;
-    }
-
-    return _randomSubaArray;
-  };
-
   var generateAdObject = function (mockupDataObject, count) {
     var adObject = {
       author: {},
@@ -53,14 +33,14 @@
     adObject.offer.guests = window.utils.getRandomInteger(10, 100);
     adObject.offer.checkin = mockupDataObject.checkins[window.utils.getRandomInteger(0, mockupDataObject.checkins.length - 1)];
     adObject.offer.checkout = mockupDataObject.checkouts[window.utils.getRandomInteger(0, mockupDataObject.checkouts.length - 1)];
-    adObject.offer.features = getRandomSubArray(mockupDataObject.features);
+    adObject.offer.features = window.utils.getRandomSubArray(mockupDataObject.features);
     adObject.offer.description = '';
     adObject.offer.photos = [];
 
     return adObject;
   };
 
-  var generateAdArray = function (objectPoint, arrayLength) {
+  var adsArray = function (objectPoint, arrayLength) {
     var maps = [];
     var i;
 
@@ -70,7 +50,7 @@
 
     return maps;
   };
-  ads = generateAdArray(adFeatures, adsQuantity);
+  ads = adsArray(adFeatures, adsQuantity);
 
   window.data = {
     ads: ads

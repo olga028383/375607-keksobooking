@@ -14,7 +14,6 @@
   var mapPinMainWidth = mapPinMain.offsetWidth;
   var noticeFormFieldAddress = noticeForm.querySelector('#address');
 
-
   var onMainPinMouseup = function () {
     var i;
     var noticeFormFieldsetQuantity;
@@ -30,7 +29,6 @@
 
   var onDragPinMainMousedown = function (event) {
     event.preventDefault();
-
     var startCoord = window.utils.getCoords(mapPinMain);
     var shiftX = event.pageX - startCoord.left;
     var shiftY = event.pageY - startCoord.top;
@@ -67,27 +65,23 @@
       }
 
       window.utils.setItemPosition(mapPinMain, pinMainPosition);
-      var coordLeft = window.utils.getCoords(mapPinMain).left + mapPinMainWidth / 2;
-      var coordBottom = window.utils.getCoords(mapPinMain).top + mapPinMainHeight;
+      var coordLeft = Math.round(window.utils.getCoords(mapPinMain).left + mapPinMainWidth / 2);
+      var coordBottom = Math.round(window.utils.getCoords(mapPinMain).top + mapPinMainHeight);
       noticeFormFieldAddress.value = coordLeft + ' : ' + coordBottom;
 
+      document.addEventListener('mouseup', onDragPinMainMouseup);
     };
 
     var onDragPinMainMouseup = function (eventUp) {
       eventUp.preventDefault();
       document.removeEventListener('mousemove', onPinMainMousemove);
-      document.removeEventListener('mouseup', onDragPinMainMouseup);
+      mapPinMain.removeEventListener('mouseup', onDragPinMainMouseup);
     };
-
     document.addEventListener('mousemove', onPinMainMousemove);
-    mapPinMain.addEventListener('mouseup', onDragPinMainMouseup);
   };
 
   mapPinMain.addEventListener('mouseup', onMainPinMouseup);
-  //  вот здесь я не пойму как одновременно загрузить пины и начать перетаскивать
   mapPinMain.addEventListener('transitionend', function () {
     mapPinMain.addEventListener('mousedown', onDragPinMainMousedown);
   });
-
-
 })();

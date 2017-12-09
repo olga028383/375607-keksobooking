@@ -38,12 +38,37 @@
     return parseInt(pinPseudoelementStyles.getPropertyValue(value), 10);
   };
 
+  var getRandomSubArray = function (arrayElements) {
+    var arrayCopy = arrayElements.slice();
+    var arrayCopyLengt = arrayCopy.length;
+    var _randomSubaArray = [];
+    var randomArrayCopyIndex;
+    var element;
+    var i;
+    var randomSubaArrayLength;
+
+    for (i = 0, randomSubaArrayLength = getRandomInteger(1, arrayCopyLengt); i < randomSubaArrayLength; i++) {
+      randomArrayCopyIndex = getRandomInteger(0, getRandomInteger(0, arrayCopyLengt - 1));
+      element = arrayCopy[randomArrayCopyIndex];
+      _randomSubaArray.push(element);
+      arrayCopy.splice(randomArrayCopyIndex, 1);
+      arrayCopyLengt -= 1;
+    }
+
+    return _randomSubaArray;
+  };
+
+  var setBorder = function (boolean, color) {
+    return (boolean) ? '1px solid ' + color : '';
+  };
   window.utils = {
     getRandomInteger: getRandomInteger,
     createMarkupFragment: createMarkupFragment,
     getCoords: getCoords,
     setItemPosition: setItemPosition,
-    getValuePseudoElement: getValuePseudoElement
+    getValuePseudoElement: getValuePseudoElement,
+    getRandomSubArray: getRandomSubArray,
+    setBorder: setBorder
   };
 })();
 
