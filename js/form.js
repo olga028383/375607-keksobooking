@@ -68,29 +68,30 @@
 
     var error = false;
 
-    if (noticeFormFieldPrice.value < noticeFormFieldPrice.minLength) {
+    if (noticeFormFieldPrice.value < noticeFormFieldPrice.minLength ||
+      noticeFormFieldPrice.value > noticeFormFieldPrice.maxLength) {
       noticeFormFieldPrice.style.border = window.utils.setBorder(true, 'red');
       error = true;
-    }
-
-    if (noticeFormFieldPrice.value > noticeFormFieldPrice.maxLength) {
-      noticeFormFieldPrice.style.border = window.utils.setBorder(true, 'red');
-      error = true;
+    } else {
+      noticeFormFieldPrice.style.border = window.utils.setBorder(false);
     }
 
     if (noticeFormFieldAddress.value.length === 0) {
       noticeFormFieldAddress.style.border = window.utils.setBorder(true, 'red');
       error = true;
+    } else {
+      noticeFormFieldAddress.style.border = window.utils.setBorder(false);
     }
 
-    if (noticeFormFieldCapacity.value > 0 && noticeFormFieldRoomNumber.value < 100) {
+    if (noticeFormFieldCapacity.value > 0 && noticeFormFieldRoomNumber.value < 99) {
       if (noticeFormFieldRoomNumber.value < noticeFormFieldCapacity.value) {
         noticeFormFieldCapacity.style.border = window.utils.setBorder(true, 'red');
         error = true;
       } else {
         noticeFormFieldCapacity.style.border = window.utils.setBorder(false);
       }
-    } else if (noticeFormFieldCapacity.value === 0 && noticeFormFieldRoomNumber.value === 100) {
+    } else if (noticeFormFieldCapacity.value === '0' && noticeFormFieldRoomNumber.value === '100') {
+      console.log();
       noticeFormFieldCapacity.style.border = window.utils.setBorder(false);
     } else {
       noticeFormFieldCapacity.style.border = window.utils.setBorder(true, 'red');
