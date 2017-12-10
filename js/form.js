@@ -2,6 +2,7 @@
 
 (function () {
   var noticeForm = document.querySelector('.notice__form');
+  var noticeFormFieldsetAll = noticeForm.querySelectorAll('fieldset');
   var noticeFormFieldTimein = noticeForm.querySelector('#timein');
   var noticeFormFieldTimeout = noticeForm.querySelector('#timeout');
   var noticeFormFieldType = noticeForm.querySelector('#type');
@@ -9,26 +10,11 @@
   var noticeFormFieldRoomNumber = noticeForm.querySelector('#room_number');
   var noticeFormFieldCapacity = noticeForm.querySelector('#capacity');
   var noticeFormFieldAddress = noticeForm.querySelector('#address');
-
-  var onMinimumPriceNoticeFormChange = function (event) {
-    var target = event.target;
-    var valueSelected = target.options[target.selectedIndex].value;
-    var minimumCostHousing = {
-      flat: 1000,
-      bungalo: 0,
-      house: 5000,
-      palace: 10000
-    };
-
-    noticeFormFieldPrice.setAttribute('minlength', minimumCostHousing[valueSelected]);
-  };
-
-  var assignHandlersForLinkedFields = function (field, changeFieldMethod) {
-    var onFieldChange = function (event) {
-      var current = event.target;
-      changeFieldMethod(current);
-    };
-    field.addEventListener('change', onFieldChange);
+  var minimumCostHousing = {
+    flat: 1000,
+    bungalo: 0,
+    house: 5000,
+    palace: 10000
   };
 
   var changeFieldTimeout = function (current) {
@@ -55,12 +41,13 @@
     }
   };
 
-  assignHandlersForLinkedFields(noticeFormFieldTimein, changeFieldTimeout);
-  assignHandlersForLinkedFields(noticeFormFieldTimeout, changeFieldTimein);
-  assignHandlersForLinkedFields(noticeFormFieldRoomNumber, changeFieldCapacity);
-  noticeFormFieldType.addEventListener('change', onMinimumPriceNoticeFormChange);
-  noticeFormFieldAddress.addEventListener('keydown', function (event) {
-    event.preventDefault();
+  noticeFormFieldsetAll.disabled = true;
+
+  window.synchronizeFields.assignHandlersForLinkedFields(noticeFormFieldTimein, changeFieldTimeout);
+  window.synchronizeFields.assignHandlersForLinkedFields(noticeFormFieldTimeout, changeFieldTimein);
+  window.synchronizeFields.assignHandlersForLinkedFields(noticeFormFieldRoomNumber, changeFieldCapacity);
+  noticeFormFieldType.addEventListener('change', function (event) {
+    window.synchronizeFields.syncValueWithMin(event, minimumCostHousing, noticeFormFieldPrice);
   });
 
   var onFormSubmit = function (event) {
