@@ -91,7 +91,6 @@
         noticeFormFieldCapacity.style.border = window.utils.setBorder(false);
       }
     } else if (noticeFormFieldCapacity.value === '0' && noticeFormFieldRoomNumber.value === '100') {
-      console.log();
       noticeFormFieldCapacity.style.border = window.utils.setBorder(false);
     } else {
       noticeFormFieldCapacity.style.border = window.utils.setBorder(true, 'red');
