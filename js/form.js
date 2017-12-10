@@ -1,22 +1,18 @@
 'use strict';
 
 (function () {
-  var noticeFormFieldTimein = window.data.noticeForm.querySelector('#timein');
-  var noticeFormFieldTimeout = window.data.noticeForm.querySelector('#timeout');
-  var noticeFormFieldType = window.data.noticeForm.querySelector('#type');
-  var noticeFormFieldPrice = window.data.noticeForm.querySelector('#price');
-  var noticeFormFieldRoomNumber = window.data.noticeForm.querySelector('#room_number');
-  var noticeFormFieldCapacity = window.data.noticeForm.querySelector('#capacity');
-  var noticeFormButton = window.data.noticeForm.querySelector('.form__submit');
+  var noticeForm = document.querySelector('.notice__form');
+  var noticeFormFieldTimein = noticeForm.querySelector('#timein');
+  var noticeFormFieldTimeout = noticeForm.querySelector('#timeout');
+  var noticeFormFieldType = noticeForm.querySelector('#type');
+  var noticeFormFieldPrice = noticeForm.querySelector('#price');
+  var noticeFormFieldRoomNumber = noticeForm.querySelector('#room_number');
+  var noticeFormFieldCapacity = noticeForm.querySelector('#capacity');
+  var noticeFormFieldAddress = noticeForm.querySelector('#address');
 
-  var changeDependentNoticeFormShelf = function (event, noticeFormField) {
-    var current = event.target;
-    noticeFormField.selectedIndex = current.selectedIndex;
-  };
-
-  var setMinimumPriceNoticeForm = function (event) {
-    var current = event.target;
-    var valueSelected = current.options[current.selectedIndex].value;
+  var onMinimumPriceNoticeFormChange = function (event) {
+    var target = event.target;
+    var valueSelected = target.options[target.selectedIndex].value;
     var minimumCostHousing = {
       flat: 1000,
       bungalo: 0,
@@ -24,43 +20,87 @@
       palace: 10000
     };
 
-    noticeFormFieldPrice.minlength = minimumCostHousing[valueSelected];
+    noticeFormFieldPrice.setAttribute('minlength', minimumCostHousing[valueSelected]);
   };
 
-  var onFormFieldTimeinChange = function (event) {
-    changeDependentNoticeFormShelf(event, noticeFormFieldTimeout);
+  var assignHandlersForLinkedFields = function (field, changeFieldMethod) {
+    var onFieldChange = function (event) {
+      var current = event.target;
+      changeFieldMethod(current);
+    };
+    field.addEventListener('change', onFieldChange);
   };
 
-  var onFormFieldTimeoutChange = function (event) {
-    changeDependentNoticeFormShelf(event, noticeFormFieldTimein);
+  var changeFieldTimeout = function (current) {
+    noticeFormFieldTimeout.selectedIndex = current.selectedIndex;
   };
 
-  var onFormFieldRoomNumberChange = function (event) {
-    changeDependentNoticeFormShelf(event, noticeFormFieldCapacity);
+  var changeFieldTimein = function (current) {
+    noticeFormFieldTimein.selectedIndex = current.selectedIndex;
   };
 
-  var onFormFieldTypeChange = function (event) {
-    setMinimumPriceNoticeForm(event);
+  var changeFieldCapacity = function (current) {
+    var currentValue = current.options[current.selectedIndex].value;
+    var optionLength = noticeFormFieldCapacity.length;
+    var i;
+    var flag = true;
+    for (i = 0; i < optionLength; i++) {
+      if (noticeFormFieldCapacity.options[i].value === currentValue) {
+        noticeFormFieldCapacity.options[i].selected = true;
+        flag = false;
+      }
+    }
+    if (flag) {
+      noticeFormFieldCapacity.options[optionLength - 1].selected = true;
+    }
   };
 
-  var onFormButtonClick = function () {
+  assignHandlersForLinkedFields(noticeFormFieldTimein, changeFieldTimeout);
+  assignHandlersForLinkedFields(noticeFormFieldTimeout, changeFieldTimein);
+  assignHandlersForLinkedFields(noticeFormFieldRoomNumber, changeFieldCapacity);
+  noticeFormFieldType.addEventListener('change', onMinimumPriceNoticeFormChange);
+  noticeFormFieldAddress.addEventListener('keydown', function (event) {
+    event.preventDefault();
+  });
 
-    window.data.noticeForm.addEventListener('invalid', function (eventField) {
-      var current = eventField.target;
-      current.style.borderColor = 'rgb(255, 0, 0)';
-    });
+  var onFormSubmit = function (event) {
+    event.preventDefault();
+
+    var error = false;
+
+    if (noticeFormFieldPrice.value < noticeFormFieldPrice.minLength ||
+      noticeFormFieldPrice.value > noticeFormFieldPrice.maxLength) {
+      noticeFormFieldPrice.style.border = window.utils.setBorder(true, 'red');
+      error = true;
+    } else {
+      noticeFormFieldPrice.style.border = window.utils.setBorder(false);
+    }
+
+    if (noticeFormFieldAddress.value.length === 0) {
+      noticeFormFieldAddress.style.border = window.utils.setBorder(true, 'red');
+      error = true;
+    } else {
+      noticeFormFieldAddress.style.border = window.utils.setBorder(false);
+    }
+
+    if (noticeFormFieldCapacity.value > 0 && noticeFormFieldRoomNumber.value < 99) {
+      if (noticeFormFieldRoomNumber.value < noticeFormFieldCapacity.value) {
+        noticeFormFieldCapacity.style.border = window.utils.setBorder(true, 'red');
+        error = true;
+      } else {
+        noticeFormFieldCapacity.style.border = window.utils.setBorder(false);
+      }
+    } else if (noticeFormFieldCapacity.value === '0' && noticeFormFieldRoomNumber.value === '100') {
+      noticeFormFieldCapacity.style.border = window.utils.setBorder(false);
+    } else {
+      noticeFormFieldCapacity.style.border = window.utils.setBorder(true, 'red');
+      error = true;
+    }
+
+    if (!error) {
+      noticeForm.submit();
+    }
+
   };
-
-  window.data.noticeFormFieldsetAll.disabled = true;
-
-  noticeFormFieldTimein.addEventListener('change', onFormFieldTimeinChange);
-  noticeFormFieldTimeout.addEventListener('change', onFormFieldTimeoutChange);
-
-  noticeFormFieldType.addEventListener('change', onFormFieldTypeChange);
-
-  noticeFormFieldRoomNumber.addEventListener('change', onFormFieldRoomNumberChange);
-
-  noticeFormButton.addEventListener('click', onFormButtonClick);
-
-
+  noticeForm.addEventListener('submit', onFormSubmit);
 })();

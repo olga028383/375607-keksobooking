@@ -1,79 +1,87 @@
 'use strict';
 
 (function () {
-  var adsQuantity = 8;
-  var adFeatures = {
-    titles: ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домиик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'],
-    types: ['flat', 'house', 'bungalo'],
-    checkins: ['12:00', '13:00', '14:00'],
-    checkouts: ['12:00', '13:00', '14:00'],
-    features: ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner']
-  };
-  var ads;
+  var TOP_MAP = 100;
+  var BOTTOM_MAP = 500;
+  var map = document.querySelector('.map');
+  var mapPinContainer = map.querySelector('.map__pins');
+  var mapPinMain = document.querySelector('.map__pin--main');
+  var noticeForm = document.querySelector('.notice__form--disabled');
+  var noticeFormFieldsetAll = noticeForm.querySelectorAll('fieldset');
+  var coordMap = window.utils.getCoords(map);
+  var pinMainPseudoElementHeight = window.utils.getValuePseudoElement('.map__pin--main', 'border-top-width');
+  var mapPinMainHeight = mapPinMain.offsetHeight + pinMainPseudoElementHeight;
+  var mapPinMainWidth = mapPinMain.offsetWidth;
+  var noticeFormFieldAddress = noticeForm.querySelector('#address');
 
-  var createAvatarUrl = function (userIndex) {
-    return 'img/avatars/user' + (userIndex < 10 ? 0 : '') + userIndex + '.png';
-  };
-
-  var getRandomSubArray = function (arrayElements) {
-    var arrayCopy = arrayElements.slice();
-    var arrayCopyLengt = arrayCopy.length;
-    var _randomSubaArray = [];
-    var randomArrayCopyIndex;
-    var element;
+  var onMainPinMouseup = function () {
     var i;
-    var randomSubaArrayLength;
-
-    for (i = 0, randomSubaArrayLength = window.data.getRandomInteger(1, arrayCopyLengt); i < randomSubaArrayLength; i++) {
-      randomArrayCopyIndex = window.data.getRandomInteger(0, window.data.getRandomInteger(0, arrayCopyLengt - 1));
-      element = arrayCopy[randomArrayCopyIndex];
-      _randomSubaArray.push(element);
-      arrayCopy.splice(randomArrayCopyIndex, 1);
-      arrayCopyLengt -= 1;
+    var noticeFormFieldsetQuantity;
+    if (map.classList.contains('map--faded')) {
+      map.classList.remove('map--faded');
+      mapPinContainer.appendChild(window.utils.createMarkupFragment(window.data.ads, window.pin.createMapPinElement));
+      noticeForm.classList.remove('notice__form--disabled');
+      for (i = 0, noticeFormFieldsetQuantity = noticeFormFieldsetAll.length; i < noticeFormFieldsetQuantity; i++) {
+        noticeFormFieldsetAll[i].disabled = false;
+      }
     }
-
-    return _randomSubaArray;
   };
 
-  var generateAdObject = function (mockupDataObject, count) {
-    var adObject = {
-      author: {},
-      offer: {},
-      location: {}
+  var onDragPinMainMousedown = function (event) {
+    event.preventDefault();
+    var startCoord = window.utils.getCoords(mapPinMain);
+    var shiftX = event.pageX - startCoord.left;
+    var shiftY = event.pageY - startCoord.top;
+    var startPinMainPosition = {
+      left: event.pageX - shiftX,
+      top: event.pageY - shiftY
     };
 
-    adObject.location.x = window.data.getRandomInteger(300, 900);
-    adObject.location.y = window.data.getRandomInteger(100, 500);
-    adObject.author.avatar = createAvatarUrl(count + 1);
-    adObject.offer.title = mockupDataObject.titles[count];
-    adObject.offer.address = adObject.location.x + ', ' + adObject.location.y;
-    adObject.offer.price = window.data.getRandomInteger(1000, 1000000);
-    adObject.offer.type = mockupDataObject.types[window.data.getRandomInteger(0, mockupDataObject.types.length)];
-    adObject.offer.rooms = window.data.getRandomInteger(1, 5);
-    adObject.offer.guests = window.data.getRandomInteger(10, 100);
-    adObject.offer.checkin = mockupDataObject.checkins[window.data.getRandomInteger(0, mockupDataObject.checkins.length - 1)];
-    adObject.offer.checkout = mockupDataObject.checkouts[window.data.getRandomInteger(0, mockupDataObject.checkouts.length - 1)];
-    adObject.offer.features = getRandomSubArray(mockupDataObject.features);
-    adObject.offer.description = '';
-    adObject.offer.photos = [];
+    window.utils.setItemPosition(mapPinMain, startPinMainPosition);
+    mapPinMain.style.transform = 'none';
+    document.body.appendChild(mapPinMain);
 
-    return adObject;
+    var onPinMainMousemove = function (eventMove) {
+      eventMove.preventDefault();
+      var pinMainPosition = {
+        left: eventMove.pageX - shiftX,
+        top: eventMove.pageY - shiftY
+      };
+
+      if (pinMainPosition.top < TOP_MAP) {
+        pinMainPosition.top = TOP_MAP;
+      }
+
+      if (pinMainPosition.top > BOTTOM_MAP) {
+        pinMainPosition.top = BOTTOM_MAP;
+      }
+
+      if (coordMap.left > pinMainPosition.left) {
+        pinMainPosition.left = coordMap.left;
+      }
+
+      if (coordMap.left + map.offsetWidth < pinMainPosition.left + mapPinMainWidth) {
+        pinMainPosition.left = coordMap.left + map.offsetWidth - mapPinMainWidth;
+      }
+
+      window.utils.setItemPosition(mapPinMain, pinMainPosition);
+      var coordLeft = Math.round(window.utils.getCoords(mapPinMain).left + mapPinMainWidth / 2);
+      var coordBottom = Math.round(window.utils.getCoords(mapPinMain).top + mapPinMainHeight);
+      noticeFormFieldAddress.value = coordLeft + ' : ' + coordBottom;
+
+      document.addEventListener('mouseup', onDragPinMainMouseup);
+    };
+
+    var onDragPinMainMouseup = function (eventUp) {
+      eventUp.preventDefault();
+      document.removeEventListener('mousemove', onPinMainMousemove);
+      mapPinMain.removeEventListener('mouseup', onDragPinMainMouseup);
+    };
+    document.addEventListener('mousemove', onPinMainMousemove);
   };
 
-  var generateAdArray = function (objectPoint, arrayLength) {
-    var maps = [];
-    var i;
-
-    for (i = 0; i < arrayLength; i++) {
-      maps[i] = generateAdObject(objectPoint, i);
-    }
-
-    return maps;
-  };
-
-  ads = generateAdArray(adFeatures, adsQuantity);
-
-  window.map = {
-    ads: ads
-  };
+  mapPinMain.addEventListener('mouseup', onMainPinMouseup);
+  mapPinMain.addEventListener('transitionend', function () {
+    mapPinMain.addEventListener('mousedown', onDragPinMainMousedown);
+  });
 })();
