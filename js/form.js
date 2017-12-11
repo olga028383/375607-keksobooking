@@ -4,8 +4,11 @@
   var noticeForm = document.querySelector('.notice__form');
   var noticeFormFieldsetAll = noticeForm.querySelectorAll('fieldset');
   var noticeFormFieldTimein = noticeForm.querySelector('#timein');
+  var noticeFormFieldTimeinOptions = noticeFormFieldTimein.querySelectorAll('option');
   var noticeFormFieldTimeout = noticeForm.querySelector('#timeout');
+  var noticeFormFieldTimeoutOptions = noticeFormFieldTimeout.querySelectorAll('option');
   var noticeFormFieldType = noticeForm.querySelector('#type');
+  var noticeFormFieldTypeOptions = noticeFormFieldType.querySelectorAll('option');
   var noticeFormFieldPrice = noticeForm.querySelector('#price');
   var noticeFormFieldRoomNumber = noticeForm.querySelector('#room_number');
   var noticeFormFieldCapacity = noticeForm.querySelector('#capacity');
@@ -16,16 +19,29 @@
     house: 5000,
     palace: 10000
   };
+  var timeinOptions;
+  var timeoutOptions;
+  var typeOptions;
+  var minimumPricesForType;
 
-  var changeFieldTimeout = function (current) {
-    noticeFormFieldTimeout.selectedIndex = current.selectedIndex;
+  var syncValues = function (element, value) {
+    element.value = value;
   };
 
-  var changeFieldTimein = function (current) {
-    noticeFormFieldTimein.selectedIndex = current.selectedIndex;
+  var syncValueWithMin = function (element, value) {
+    element.minLength = value;
   };
 
-  var changeFieldCapacity = function (current) {
+  var getValuesFromArray = function (array, index) {
+    return array[index].value;
+  };
+
+  var getValuesFromObject = function (array, index) {
+    return minimumCostHousing[array[index].value];
+  };
+
+  var changeFieldCapacity = function (event) {
+    var current = event.target;
     var currentValue = current.options[current.selectedIndex].value;
     var optionLength = noticeFormFieldCapacity.length;
     var i;
@@ -43,12 +59,15 @@
 
   noticeFormFieldsetAll.disabled = true;
 
-  window.synchronizeFields.assignHandlersForLinkedFields(noticeFormFieldTimein, changeFieldTimeout);
-  window.synchronizeFields.assignHandlersForLinkedFields(noticeFormFieldTimeout, changeFieldTimein);
-  window.synchronizeFields.assignHandlersForLinkedFields(noticeFormFieldRoomNumber, changeFieldCapacity);
-  noticeFormFieldType.addEventListener('change', function (event) {
-    window.synchronizeFields.syncValueWithMin(event, minimumCostHousing, noticeFormFieldPrice);
-  });
+  timeinOptions = window.utils.getValues(noticeFormFieldTimeinOptions, getValuesFromArray);
+  timeoutOptions = window.utils.getValues(noticeFormFieldTimeoutOptions, getValuesFromArray);
+  typeOptions = window.utils.getValues(noticeFormFieldTypeOptions, getValuesFromArray);
+  minimumPricesForType = window.utils.getValues(noticeFormFieldTypeOptions, getValuesFromObject);
+
+  window.synchronizeFields(noticeFormFieldTimein, noticeFormFieldTimeout, timeinOptions, timeoutOptions, syncValues);
+  window.synchronizeFields(noticeFormFieldTimeout, noticeFormFieldTimein, timeoutOptions, timeinOptions, syncValues);
+  window.synchronizeFields(noticeFormFieldType, noticeFormFieldPrice, typeOptions, minimumPricesForType, syncValueWithMin);
+  noticeFormFieldRoomNumber.addEventListener('change', changeFieldCapacity);
 
   var onFormSubmit = function (event) {
     event.preventDefault();

@@ -67,7 +67,7 @@
       window.utils.setItemPosition(mapPinMain, pinMainPosition);
       var coordLeft = Math.round(window.utils.getCoords(mapPinMain).left + mapPinMainWidth / 2);
       var coordBottom = Math.round(window.utils.getCoords(mapPinMain).top + mapPinMainHeight);
-      noticeFormFieldAddress.value = coordLeft + ' : ' + coordBottom;
+      noticeFormFieldAddress.value = 'x: ' + coordLeft + ', y: ' + coordBottom;
 
       document.addEventListener('mouseup', onDragPinMainMouseup);
     };
