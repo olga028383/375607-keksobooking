@@ -12,6 +12,7 @@
     if (Array.isArray(dataCard)) {
       for (i = 0, mapLength = dataCard.length; i < mapLength; i++) {
         documentFragment.appendChild(createElements(dataCard[i]));
+
       }
     } else {
       documentFragment.appendChild(createElements(dataCard));
