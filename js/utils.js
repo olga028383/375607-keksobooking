@@ -61,6 +61,19 @@
   var setBorder = function (boolean, color) {
     return (boolean) ? '1px solid ' + color : '';
   };
+
+  var getValues = function (data, callback) {
+    var values = [];
+    var i;
+    var dataLength = data.length;
+
+    for (i = 0; i < dataLength; i++) {
+      values[i] = callback(data, i);
+    }
+
+    return values;
+  };
+
   window.utils = {
     getRandomInteger: getRandomInteger,
     createMarkupFragment: createMarkupFragment,
@@ -68,7 +81,8 @@
     setItemPosition: setItemPosition,
     getValuePseudoElement: getValuePseudoElement,
     getRandomSubArray: getRandomSubArray,
-    setBorder: setBorder
+    setBorder: setBorder,
+    getValues: getValues
   };
 })();
 
