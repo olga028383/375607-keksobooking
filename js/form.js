@@ -104,7 +104,10 @@
     }
 
     if (!error) {
-      noticeForm.submit();
+      window.backend.save(new FormData(noticeForm), function () {
+        noticeForm.querySelector('#title').value = '';
+        noticeFormFieldAddress.value = '';
+      }, window.backend.error);
     }
 
   };
