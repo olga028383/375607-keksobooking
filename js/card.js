@@ -57,10 +57,10 @@
     button.classList.add('map__pin--active');
     activePin = button;
 
-    for (i = 0, adsLength = window.data.ads.length; i < adsLength; i++) {
-      if (img.src.indexOf(window.data.ads[i].author.avatar) !== -1) {
-        map.insertBefore(window.utils.createMarkupFragment(window.data.ads[i], createAdsCardMarkup), mapFiltersContainer);
-        positionElementInObject = window.data.ads[i];
+    for (i = 0, adsLength = window.ads.length; i < adsLength; i++) {
+      if (img.src.indexOf(window.ads[i].author.avatar) !== -1) {
+        map.insertBefore(window.utils.createMarkupFragment(window.ads[i], createAdsCardMarkup), mapFiltersContainer);
+        positionElementInObject = window.ads[i];
       }
     }
 

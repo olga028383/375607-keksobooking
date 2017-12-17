@@ -3,6 +3,7 @@
 (function () {
   var URL_GET = 'https://1510.dump.academy/keksobooking/data';
   var URL_POST = 'https://1510.dump.academy/keksobooking';
+  var errorBox;
   var load = function (onLoad, onError) {
     var xhr = setup(onLoad, onError);
 
@@ -18,7 +19,8 @@
   };
 
   var error = function (errorMessage) {
-    var errorBox = document.createElement('div');
+    errorBox = document.createElement('div');
+    errorBox.classList.add('error');
     errorBox.style.zIndex = 100;
     errorBox.style.position = 'absolute';
     errorBox.style.left = '0';
@@ -62,6 +64,7 @@
     load: load,
     save: save,
     error: error,
-    setupXhr: setup
+    setupXhr: setup,
+    errorBox: errorBox
   };
 })();

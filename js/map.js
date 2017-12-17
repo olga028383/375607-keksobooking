@@ -1,8 +1,6 @@
 'use strict';
 
 (function () {
-  var TOP_MAP = 100;
-  var BOTTOM_MAP = 500;
   var map = document.querySelector('.map');
   var mapPinContainer = map.querySelector('.map__pins');
   var mapPinMain = document.querySelector('.map__pin--main');
@@ -19,7 +17,7 @@
     var noticeFormFieldsetQuantity;
     if (map.classList.contains('map--faded')) {
       map.classList.remove('map--faded');
-      mapPinContainer.appendChild(window.utils.createMarkupFragment(window.data.ads, window.pin.createMapPinElement));
+      mapPinContainer.appendChild(window.utils.createMarkupFragment(window.ads, window.pin.createMapPinElement));
       noticeForm.classList.remove('notice__form--disabled');
       for (i = 0, noticeFormFieldsetQuantity = noticeFormFieldsetAll.length; i < noticeFormFieldsetQuantity; i++) {
         noticeFormFieldsetAll[i].disabled = false;
@@ -48,12 +46,12 @@
         top: eventMove.pageY - shiftY
       };
 
-      if (pinMainPosition.top < TOP_MAP) {
-        pinMainPosition.top = TOP_MAP;
+      if (pinMainPosition.top < window.constant.topMap) {
+        pinMainPosition.top = window.constant.topMap;
       }
 
-      if (pinMainPosition.top > BOTTOM_MAP) {
-        pinMainPosition.top = BOTTOM_MAP;
+      if (pinMainPosition.top > window.constant.bottomMap) {
+        pinMainPosition.top = window.constant.bottomMap;
       }
 
       if (coordMap.left > pinMainPosition.left) {
@@ -80,8 +78,12 @@
     document.addEventListener('mousemove', onPinMainMousemove);
   };
 
-  mapPinMain.addEventListener('mouseup', onMainPinMouseup);
-  mapPinMain.addEventListener('transitionend', function () {
-    mapPinMain.addEventListener('mousedown', onDragPinMainMousedown);
-  });
+  window.backend.load(function (pins) {
+    window.pins = pins;
+    window.ads = pins.slice(0, window.constant.adsQuantity);
+    mapPinMain.addEventListener('mouseup', onMainPinMouseup);
+    mapPinMain.addEventListener('transitionend', function () {
+      mapPinMain.addEventListener('mousedown', onDragPinMainMousedown);
+    });
+  }, window.backend.error);
 })();

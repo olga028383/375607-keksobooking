@@ -13,6 +13,8 @@
   var noticeFormFieldRoomNumber = noticeForm.querySelector('#room_number');
   var noticeFormFieldCapacity = noticeForm.querySelector('#capacity');
   var noticeFormFieldAddress = noticeForm.querySelector('#address');
+  var noticeFormFieldFeature = noticeForm.querySelector('.features');
+  var noticeFormFieldDescription = noticeForm.querySelector('#description');
   var minimumCostHousing = {
     flat: 1000,
     bungalo: 0,
@@ -107,6 +109,17 @@
       window.backend.save(new FormData(noticeForm), function () {
         noticeForm.querySelector('#title').value = '';
         noticeFormFieldAddress.value = '';
+        noticeFormFieldType.value = 'flat';
+        noticeFormFieldPrice.value = '5000';
+        noticeFormFieldTimein.value = '12:00';
+        noticeFormFieldTimeout.value = '12:00';
+        noticeFormFieldRoomNumber.value = '1';
+        noticeFormFieldCapacity.value = '1';
+        noticeFormFieldDescription.value = '';
+
+        Array.prototype.slice.call(noticeFormFieldFeature.querySelectorAll('input')).forEach(function (element) {
+          element.checked = false;
+        });
       }, window.backend.error);
     }
 
