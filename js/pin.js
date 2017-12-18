@@ -86,18 +86,19 @@
   var updatePins = function () {
     window.ads = window.pins.sort(function (left, right) {
       return getRank(right) - getRank(left);
-    }).slice(0, window.constant.adsQuantity);
-    mapPinContainer.appendChild(window.utils.createMarkupFragment(window.ads, window.pin.createMapPinElement));
+    });
+    mapPinContainer.appendChild(window.utils.createMarkupFragment(window.ads.slice(0, window.constant.adsQuantity), window.pin.createMapPinElement));
   };
 
   filterContainer.addEventListener('change', function () {
+    window.removeCard();
     removePin();
     housingFeaturesChecked = Array.prototype.slice.call(housingFeatures).filter(function (element) {
       return element.checked;
     }).map(function (element) {
       return element.value;
     });
-    updatePins();
+    window.debounce(updatePins);
   });
 
   window.pin = {

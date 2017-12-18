@@ -83,4 +83,5 @@
   };
 
   window.card = createCard;
+  window.removeCard = removeCard;
 })();
