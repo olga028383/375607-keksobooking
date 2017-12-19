@@ -15,6 +15,8 @@
   var noticeFormFieldAddress = noticeForm.querySelector('#address');
   var noticeFormFieldFeature = noticeForm.querySelector('.features');
   var noticeFormFieldDescription = noticeForm.querySelector('#description');
+  var noticeFormFieldFeatureInput = noticeFormFieldFeature.querySelectorAll('input');
+  var noticeFormFieldFeatures = [].slice.call(noticeFormFieldFeatureInput);
   var minimumCostHousing = {
     flat: 1000,
     bungalo: 0,
@@ -117,7 +119,7 @@
         noticeFormFieldCapacity.value = '1';
         noticeFormFieldDescription.value = '';
 
-        Array.prototype.slice.call(noticeFormFieldFeature.querySelectorAll('input')).forEach(function (element) {
+        noticeFormFieldFeatures.forEach(function (element) {
           element.checked = false;
         });
       }, window.backend.error);

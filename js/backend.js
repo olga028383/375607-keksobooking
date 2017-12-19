@@ -1,22 +1,7 @@
 'use strict';
 
 (function () {
-  var URL_GET = 'https://1510.dump.academy/keksobooking/data';
-  var URL_POST = 'https://1510.dump.academy/keksobooking';
   var errorBox;
-  var load = function (onLoad, onError) {
-    var xhr = setup(onLoad, onError);
-
-    xhr.open('GET', URL_GET);
-    xhr.send();
-  };
-
-  var save = function (data, onLoad, onError) {
-    var xhr = setup(onLoad, onError);
-
-    xhr.open('POST', URL_POST);
-    xhr.send(data);
-  };
 
   var error = function (errorMessage) {
     errorBox = document.createElement('div');
@@ -34,11 +19,24 @@
     document.body.insertAdjacentElement('afterbegin', errorBox);
   };
 
+  var load = function (onLoad) {
+    var xhr = setup(onLoad, error);
+
+    xhr.open('GET', window.constant.urlGet);
+    xhr.send();
+  };
+
+  var save = function (data, onLoad) {
+    var xhr = setup(onLoad, error);
+
+    xhr.open('POST', window.constant.urlPost);
+    xhr.send(data);
+  };
+
   var setup = function (onLoad, onError) {
-
     var xhr = new XMLHttpRequest();
-    xhr.responseType = 'json';
 
+    xhr.responseType = 'json';
     xhr.addEventListener('load', function () {
       if (xhr.status === 200) {
         onLoad(xhr.response);
@@ -64,7 +62,6 @@
     load: load,
     save: save,
     error: error,
-    setupXhr: setup,
-    errorBox: errorBox
+    setupXhr: setup
   };
 })();

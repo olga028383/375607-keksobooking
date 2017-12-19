@@ -6,7 +6,7 @@
   var mapPinMain = document.querySelector('.map__pin--main');
   var noticeForm = document.querySelector('.notice__form--disabled');
   var noticeFormFieldsetAll = noticeForm.querySelectorAll('fieldset');
-  var coordMap = window.utils.getCoords(map);
+  var coordMap = window.utils.getCoordinates(map);
   var pinMainPseudoElementHeight = window.utils.getValuePseudoElement('.map__pin--main', 'border-top-width');
   var mapPinMainHeight = mapPinMain.offsetHeight + pinMainPseudoElementHeight;
   var mapPinMainWidth = mapPinMain.offsetWidth;
@@ -27,9 +27,9 @@
 
   var onDragPinMainMousedown = function (event) {
     event.preventDefault();
-    var startCoord = window.utils.getCoords(mapPinMain);
-    var shiftX = event.pageX - startCoord.left;
-    var shiftY = event.pageY - startCoord.top;
+    var startCoordinates = window.utils.getCoordinates(mapPinMain);
+    var shiftX = event.pageX - startCoordinates.left;
+    var shiftY = event.pageY - startCoordinates.top;
     var startPinMainPosition = {
       left: event.pageX - shiftX,
       top: event.pageY - shiftY
@@ -63,9 +63,9 @@
       }
 
       window.utils.setItemPosition(mapPinMain, pinMainPosition);
-      var coordLeft = Math.round(window.utils.getCoords(mapPinMain).left + mapPinMainWidth / 2);
-      var coordBottom = Math.round(window.utils.getCoords(mapPinMain).top + mapPinMainHeight);
-      noticeFormFieldAddress.value = 'x: ' + coordLeft + ', y: ' + coordBottom;
+      var coordinateLeft = Math.round(window.utils.getCoordinates(mapPinMain).left + mapPinMainWidth / 2);
+      var coordinateBottom = Math.round(window.utils.getCoordinates(mapPinMain).top + mapPinMainHeight);
+      noticeFormFieldAddress.value = 'x: ' + coordinateLeft + ', y: ' + coordinateBottom;
 
       document.addEventListener('mouseup', onDragPinMainMouseup);
     };
@@ -78,12 +78,14 @@
     document.addEventListener('mousemove', onPinMainMousemove);
   };
 
-  window.backend.load(function (pins) {
-    window.pins = pins;
-    window.ads = pins.slice(0, window.constant.adsQuantity);
+  var addHandlers = function () {
     mapPinMain.addEventListener('mouseup', onMainPinMouseup);
     mapPinMain.addEventListener('transitionend', function () {
       mapPinMain.addEventListener('mousedown', onDragPinMainMousedown);
     });
-  }, window.backend.error);
+  };
+
+  window.map = {
+    addHandlers: addHandlers
+  };
 })();

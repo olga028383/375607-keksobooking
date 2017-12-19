@@ -1,6 +1,8 @@
 'use strict';
 
 (function () {
+  var lastTimeout;
+
   var getRandomInteger = function (min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
@@ -21,7 +23,7 @@
     return documentFragment;
   };
 
-  var getCoords = function (element) {
+  var getCoordinates = function (element) {
     var box = element.getBoundingClientRect();
     return {
       top: box.top + pageYOffset,
@@ -75,15 +77,23 @@
     return values;
   };
 
+  var debounce = function (func) {
+    if (lastTimeout) {
+      window.clearTimeout(lastTimeout);
+    }
+    lastTimeout = window.setTimeout(func, window.constant.debounceInterval);
+  };
+
   window.utils = {
     getRandomInteger: getRandomInteger,
     createMarkupFragment: createMarkupFragment,
-    getCoords: getCoords,
+    getCoordinates: getCoordinates,
     setItemPosition: setItemPosition,
     getValuePseudoElement: getValuePseudoElement,
     getRandomSubArray: getRandomSubArray,
     setBorder: setBorder,
-    getValues: getValues
+    getValues: getValues,
+    debounce: debounce
   };
 })();
 

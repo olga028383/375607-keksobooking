@@ -1,7 +1,6 @@
 'use strict';
 
 (function () {
-  var ESC_KEYCODE = 27;
   var map = document.querySelector('.map');
   var mapTemplateContainer = document.querySelector('template').content;
   var mapFiltersContainer = mapTemplateContainer.querySelector('.map__filters-container');
@@ -73,7 +72,7 @@
   };
 
   var onCardCloseEscKeydown = function (event) {
-    if (event.keyCode === ESC_KEYCODE) {
+    if (event.keyCode === window.constant.escKeycode) {
       removeCard();
     }
   };
@@ -82,6 +81,8 @@
     removeCard();
   };
 
-  window.card = createCard;
-  window.removeCard = removeCard;
+  window.card = {
+    create: createCard,
+    remove: removeCard
+  };
 })();
