@@ -180,14 +180,17 @@
 
     dragZone.addEventListener('dragover', function (event) {
       stopBrowserAction(event);
+      dragZone.style.border = window.utils.setBorder(true, 'red');
     });
 
     dragZone.addEventListener('dragleave', function (event) {
       stopBrowserAction(event);
+      dragZone.style.border = window.utils.setBorder(false);
     });
 
     dragZone.addEventListener('drop', function (event) {
       selectFile(event, onCollbackLoad);
+      dragZone.style.border = window.utils.setBorder(false);
     });
   };
 
