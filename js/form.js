@@ -17,6 +17,12 @@
   var noticeFormFieldDescription = noticeForm.querySelector('#description');
   var noticeFormFieldFeatureInput = noticeFormFieldFeature.querySelectorAll('input');
   var noticeFormFieldFeatures = [].slice.call(noticeFormFieldFeatureInput);
+  var noticeFormFieldAvatar = noticeForm.querySelector('#avatar');
+  var noticeFormAvatarDragZone = document.querySelector('.notice__photo label');
+  var noticeFormFieldImages = noticeForm.querySelector('#images');
+  var noticeFormImagesDragZone = document.querySelector('.form__photo-container label');
+  var photo = false;
+
   var minimumCostHousing = {
     flat: 1000,
     bungalo: 0,
@@ -60,18 +66,6 @@
       noticeFormFieldCapacity.options[optionLength - 1].selected = true;
     }
   };
-
-  noticeFormFieldsetAll.disabled = true;
-
-  timeinOptions = window.utils.getValues(noticeFormFieldTimeinOptions, getValuesFromArray);
-  timeoutOptions = window.utils.getValues(noticeFormFieldTimeoutOptions, getValuesFromArray);
-  typeOptions = window.utils.getValues(noticeFormFieldTypeOptions, getValuesFromArray);
-  minimumPricesForType = window.utils.getValues(noticeFormFieldTypeOptions, getValuesFromObject);
-
-  window.synchronizeFields(noticeFormFieldTimein, noticeFormFieldTimeout, timeinOptions, timeoutOptions, syncValues);
-  window.synchronizeFields(noticeFormFieldTimeout, noticeFormFieldTimein, timeoutOptions, timeinOptions, syncValues);
-  window.synchronizeFields(noticeFormFieldType, noticeFormFieldPrice, typeOptions, minimumPricesForType, syncValueWithMin);
-  noticeFormFieldRoomNumber.addEventListener('change', changeFieldCapacity);
 
   var onFormSubmit = function (event) {
     event.preventDefault();
@@ -126,5 +120,85 @@
     }
 
   };
+
+  var createPhoto = function (event) {
+    var image;
+
+    image = document.createElement('img');
+    image.src = event.target.result;
+    image.style.height = '100%';
+
+    return image;
+  };
+
+  var createPhotoAvatar = function (event) {
+    noticeFormAvatarDragZone.innerHTML = '';
+    noticeFormAvatarDragZone.appendChild(createPhoto(event));
+  };
+
+  var createPhotoImages = function (event) {
+    if (!photo) {
+      noticeFormImagesDragZone.innerHTML = '';
+      photo = true;
+    }
+    noticeFormImagesDragZone.appendChild(createPhoto(event));
+  };
+
+  var parseFile = function (file, onCollbackLoad) {
+    var reader;
+    if (file.type.indexOf('image') === 0) {
+      reader = new FileReader();
+      reader.addEventListener('load', function (event) {
+        onCollbackLoad(event);
+      });
+      reader.readAsDataURL(file);
+    }
+  };
+
+  var stopBrowserAction = function (event) {
+    event.preventDefault();
+  };
+
+  var selectFile = function (event, onCollbackLoad) {
+    stopBrowserAction(event);
+    var files = event.target.files || event.dataTransfer.files;
+    [].slice.call(files).forEach(function (file) {
+      parseFile(file, onCollbackLoad);
+    });
+  };
+
+  var uploadPhotoEvents = function (field, dragZone, onCollbackLoad) {
+    field.addEventListener('change', function (event) {
+      selectFile(event, onCollbackLoad);
+    });
+
+    dragZone.addEventListener('dragover', function (event) {
+      stopBrowserAction(event);
+    });
+
+    dragZone.addEventListener('dragleave', function (event) {
+      stopBrowserAction(event);
+    });
+    
+    dragZone.addEventListener('drop', function (event) {
+      selectFile(event, onCollbackLoad);
+    });
+  };
+
+  noticeFormFieldsetAll.disabled = true;
+
+  timeinOptions = window.utils.getValues(noticeFormFieldTimeinOptions, getValuesFromArray);
+  timeoutOptions = window.utils.getValues(noticeFormFieldTimeoutOptions, getValuesFromArray);
+  typeOptions = window.utils.getValues(noticeFormFieldTypeOptions, getValuesFromArray);
+  minimumPricesForType = window.utils.getValues(noticeFormFieldTypeOptions, getValuesFromObject);
+
+  window.synchronizeFields(noticeFormFieldTimein, noticeFormFieldTimeout, timeinOptions, timeoutOptions, syncValues);
+  window.synchronizeFields(noticeFormFieldTimeout, noticeFormFieldTimein, timeoutOptions, timeinOptions, syncValues);
+  window.synchronizeFields(noticeFormFieldType, noticeFormFieldPrice, typeOptions, minimumPricesForType, syncValueWithMin);
+  noticeFormFieldRoomNumber.addEventListener('change', changeFieldCapacity);
+
+  uploadPhotoEvents(noticeFormFieldAvatar, noticeFormAvatarDragZone, createPhotoAvatar);
+  uploadPhotoEvents(noticeFormFieldImages, noticeFormImagesDragZone, createPhotoImages);
+
   noticeForm.addEventListener('submit', onFormSubmit);
 })();

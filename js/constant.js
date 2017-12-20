@@ -8,6 +8,7 @@
   var DEBOUNCE_INTERVAL = 500;
   var URL_GET = 'https://1510.dump.academy/keksobooking/data';
   var URL_POST = 'https://1510.dump.academy/keksobooking';
+  var MAX_FILE_SIZE = 1000000;
 
   window.constant = {
     topMap: TOP_MAP,
@@ -16,7 +17,8 @@
     urlGet: URL_GET,
     urlPost: URL_POST,
     escKeycode: ESC_KEYCODE,
-    debounceInterval: DEBOUNCE_INTERVAL
+    debounceInterval: DEBOUNCE_INTERVAL,
+    maxFileSize: MAX_FILE_SIZE
   };
 
 })();
