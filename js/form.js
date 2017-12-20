@@ -111,13 +111,16 @@
         noticeFormFieldRoomNumber.value = '1';
         noticeFormFieldCapacity.value = '1';
         noticeFormFieldDescription.value = '';
+        noticeFormFieldAvatar.value = '';
+        noticeFormFieldImages.value = '';
+        noticeFormAvatarDragZone.textContent = 'Загрузите или перетащите сюда фото';
+        noticeFormImagesDragZone.textContent = 'Загрузите или перетащите сюда фото';
 
         noticeFormFieldFeatures.forEach(function (element) {
           element.checked = false;
         });
-      }, window.backend.error);
+      });
     }
-
   };
 
   var createPhoto = function (event) {
