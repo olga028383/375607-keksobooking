@@ -18,9 +18,10 @@
   var noticeFormFieldFeatureInput = noticeFormFieldFeature.querySelectorAll('input');
   var noticeFormFieldFeatures = [].slice.call(noticeFormFieldFeatureInput);
   var noticeFormFieldAvatar = noticeForm.querySelector('#avatar');
-  var noticeFormAvatarDragZone = document.querySelector('.notice__photo label');
+  var noticeFormAvatarDragZone = noticeForm.querySelector('.notice__photo label');
   var noticeFormFieldImages = noticeForm.querySelector('#images');
-  var noticeFormImagesDragZone = document.querySelector('.form__photo-container label');
+  var noticeFormImagesContainer = noticeForm.querySelector('.form__photo-container');
+  var noticeFormImagesDragZone = noticeFormImagesContainer.querySelector('label');
   var photo = false;
   var minimumCostHousing = {
     flat: 1000,
@@ -115,6 +116,7 @@
         noticeFormFieldImages.value = '';
         noticeFormAvatarDragZone.textContent = 'Загрузите или перетащите сюда фото';
         noticeFormImagesDragZone.textContent = 'Загрузите или перетащите сюда фото';
+        noticeFormImagesContainer.style.width = '70px';
 
         noticeFormFieldFeatures.forEach(function (element) {
           element.checked = false;
@@ -129,7 +131,8 @@
     image = document.createElement('img');
     image.src = event.target.result;
     image.style.height = '100%';
-
+    image.style.marginLeft = '5px';
+    image.style.marginRight = '5px';
     return image;
   };
 
@@ -143,6 +146,7 @@
       noticeFormImagesDragZone.innerHTML = '';
       photo = true;
     }
+    noticeFormImagesContainer.style.width = 'auto';
     noticeFormImagesDragZone.appendChild(createPhoto(event));
   };
 
