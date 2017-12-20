@@ -22,7 +22,6 @@
   var noticeFormFieldImages = noticeForm.querySelector('#images');
   var noticeFormImagesDragZone = document.querySelector('.form__photo-container label');
   var photo = false;
-
   var minimumCostHousing = {
     flat: 1000,
     bungalo: 0,
@@ -179,7 +178,7 @@
     dragZone.addEventListener('dragleave', function (event) {
       stopBrowserAction(event);
     });
-    
+
     dragZone.addEventListener('drop', function (event) {
       selectFile(event, onCollbackLoad);
     });
