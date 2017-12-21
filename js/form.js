@@ -35,7 +35,7 @@
   };
 
   var synchronizationValueWithMin = function (element, value) {
-    element.minLength = value;
+    element.min = value;
   };
 
   var getValuesFromArray = function (array, index) {
@@ -68,14 +68,6 @@
   var onFormSubmit = function (event) {
     event.preventDefault();
     var error = false;
-
-    if (noticeFormFieldPrice.value < noticeFormFieldPrice.minLength ||
-      noticeFormFieldPrice.value > noticeFormFieldPrice.maxLength) {
-      noticeFormFieldPrice.style.border = window.utils.setBorder(true, 'red');
-      error = true;
-    } else {
-      noticeFormFieldPrice.style.border = window.utils.setBorder(false);
-    }
 
     if (noticeFormFieldAddress.value.length === 0) {
       noticeFormFieldAddress.style.border = window.utils.setBorder(true, 'red');
