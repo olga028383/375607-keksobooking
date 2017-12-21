@@ -77,11 +77,11 @@
     return values;
   };
 
-  var debounce = function (func) {
+  var debounce = function (callback) {
     if (lastTimeout) {
       window.clearTimeout(lastTimeout);
     }
-    lastTimeout = window.setTimeout(func, window.constant.debounceInterval);
+    lastTimeout = window.setTimeout(callback, window.constant.DEBOUNCE_INTERVAL);
   };
 
   window.utils = {

@@ -35,9 +35,9 @@
 
   var createMapPinElement = function (adObject) {
     var buttonElement = mapPinTemplate.cloneNode(true);
-    var imgCopy = buttonElement.querySelector('img');
+    var imageCopy = buttonElement.querySelector('img');
 
-    imgCopy.src = adObject.author.avatar;
+    imageCopy.src = adObject.author.avatar;
     buttonElement.style.left = (adObject.location.x) + 'px';
     buttonElement.style.top = (adObject.location.y - heightImages / 2 - pinPseudoelementHeight) + 'px';
 
@@ -53,10 +53,6 @@
         element.remove();
       }
     });
-  };
-
-  var onPinClick = function (event) {
-    window.card.create(event);
   };
 
   var getRank = function (ads) {
@@ -76,17 +72,17 @@
 
     switch (housingPrice.value) {
       case 'middle':
-        if (ads.offer.price > 10000 && ads.offer.price < 500000) {
+        if (ads.offer.price >= 10000 && ads.offer.price <= 500000) {
           rank += 1;
         }
         break;
       case 'low':
-        if (ads.offer.price <= 10000) {
+        if (ads.offer.price < 10000) {
           rank += 1;
         }
         break;
       case 'high':
-        if (ads.offer.price >= 50000) {
+        if (ads.offer.price > 50000) {
           rank += 1;
         }
         break;
@@ -106,7 +102,7 @@
     window.ads = arrayCopyPins.filter(function (element) {
       return getRank(element) === numberPoints;
     });
-    mapPinContainer.appendChild(window.utils.createMarkupFragment(window.ads.slice(0, window.constant.adsQuantity), window.pin.createMapPinElement));
+    mapPinContainer.appendChild(window.utils.createMarkupFragment(window.ads.slice(0, window.constant.ADS_QUANTITY), window.pin.createMapPinElement));
   };
 
   var changeNumberPoints = function (condition, objectFilter, elementId) {
@@ -119,6 +115,10 @@
       objectFilter[elementId] = false;
       --numberPoints;
     }
+  };
+
+  var onPinClick = function (event) {
+    window.card.create(event);
   };
 
   filterContainer.addEventListener('change', function (event) {
@@ -147,7 +147,7 @@
 
   var init = function (arrayAds) {
     pins = arrayAds;
-    window.ads = arrayAds.slice(0, window.constant.adsQuantity);
+    window.ads = arrayAds.slice(0, window.constant.ADS_QUANTITY);
     window.map.addHandlers();
   };
 

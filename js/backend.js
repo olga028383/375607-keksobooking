@@ -19,20 +19,6 @@
     document.body.insertAdjacentElement('afterbegin', errorBox);
   };
 
-  var load = function (onLoad) {
-    var xhr = setup(onLoad, error);
-
-    xhr.open('GET', window.constant.urlGet);
-    xhr.send();
-  };
-
-  var save = function (data, onLoad) {
-    var xhr = setup(onLoad, error);
-
-    xhr.open('POST', window.constant.urlPost);
-    xhr.send(data);
-  };
-
   var setup = function (onLoad, onError) {
     var xhr = new XMLHttpRequest();
 
@@ -53,15 +39,27 @@
       onError('Запрос не успел выполниться за ' + xhr.timeout + ' мс');
     });
 
-    xhr.timeout = 10000;
+    xhr.timeout = window.constant.MAX_TIMEUOT;
 
     return xhr;
   };
 
+  var load = function (onLoad) {
+    var xhr = setup(onLoad, error);
+
+    xhr.open('GET', window.constant.URL_GET);
+    xhr.send();
+  };
+
+  var save = function (data, onLoad) {
+    var xhr = setup(onLoad, error);
+
+    xhr.open('POST', window.constant.URL_POST);
+    xhr.send(data);
+  };
+
   window.backend = {
     load: load,
-    save: save,
-    error: error,
-    setupXhr: setup
+    save: save
   };
 })();

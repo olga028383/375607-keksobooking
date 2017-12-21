@@ -6,7 +6,7 @@
   var mapPinMain = document.querySelector('.map__pin--main');
   var noticeForm = document.querySelector('.notice__form--disabled');
   var noticeFormFieldsetAll = noticeForm.querySelectorAll('fieldset');
-  var coordMap = window.utils.getCoordinates(map);
+  var coordinatesMap = window.utils.getCoordinates(map);
   var pinMainPseudoElementHeight = window.utils.getValuePseudoElement('.map__pin--main', 'border-top-width');
   var mapPinMainHeight = mapPinMain.offsetHeight + pinMainPseudoElementHeight;
   var mapPinMainWidth = mapPinMain.offsetWidth;
@@ -15,10 +15,12 @@
   var onMainPinMouseup = function () {
     var i;
     var noticeFormFieldsetQuantity;
+
     if (map.classList.contains('map--faded')) {
       map.classList.remove('map--faded');
       mapPinContainer.appendChild(window.utils.createMarkupFragment(window.ads, window.pin.createMapPinElement));
       noticeForm.classList.remove('notice__form--disabled');
+
       for (i = 0, noticeFormFieldsetQuantity = noticeFormFieldsetAll.length; i < noticeFormFieldsetQuantity; i++) {
         noticeFormFieldsetAll[i].disabled = false;
       }
@@ -45,26 +47,26 @@
         left: eventMove.pageX - shiftX,
         top: eventMove.pageY - shiftY
       };
+      var coordinateLeft = Math.round(window.utils.getCoordinates(mapPinMain).left + mapPinMainWidth / 2);
+      var coordinateBottom = Math.round(window.utils.getCoordinates(mapPinMain).top + mapPinMainHeight);
 
-      if (pinMainPosition.top < window.constant.topMap) {
-        pinMainPosition.top = window.constant.topMap;
+      if (pinMainPosition.top < window.constant.TOP_MAP) {
+        pinMainPosition.top = window.constant.TOP_MAP;
       }
 
-      if (pinMainPosition.top > window.constant.bottomMap) {
-        pinMainPosition.top = window.constant.bottomMap;
+      if (pinMainPosition.top > window.constant.BOTTOM_MAP) {
+        pinMainPosition.top = window.constant.BOTTOM_MAP;
       }
 
-      if (coordMap.left > pinMainPosition.left) {
-        pinMainPosition.left = coordMap.left;
+      if (coordinatesMap.left > pinMainPosition.left) {
+        pinMainPosition.left = coordinatesMap.left;
       }
 
-      if (coordMap.left + map.offsetWidth < pinMainPosition.left + mapPinMainWidth) {
-        pinMainPosition.left = coordMap.left + map.offsetWidth - mapPinMainWidth;
+      if (coordinatesMap.left + map.offsetWidth < pinMainPosition.left + mapPinMainWidth) {
+        pinMainPosition.left = coordinatesMap.left + map.offsetWidth - mapPinMainWidth;
       }
 
       window.utils.setItemPosition(mapPinMain, pinMainPosition);
-      var coordinateLeft = Math.round(window.utils.getCoordinates(mapPinMain).left + mapPinMainWidth / 2);
-      var coordinateBottom = Math.round(window.utils.getCoordinates(mapPinMain).top + mapPinMainHeight);
       noticeFormFieldAddress.value = 'x: ' + coordinateLeft + ', y: ' + coordinateBottom;
 
       document.addEventListener('mouseup', onDragPinMainMouseup);
@@ -72,6 +74,7 @@
 
     var onDragPinMainMouseup = function (eventUp) {
       eventUp.preventDefault();
+
       document.removeEventListener('mousemove', onPinMainMousemove);
       mapPinMain.removeEventListener('mouseup', onDragPinMainMouseup);
     };

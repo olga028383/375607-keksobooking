@@ -12,8 +12,8 @@
   var createAdsCardMarkup = function (adObject) {
     var adsElement = mapCardTemplate.cloneNode(true);
     var translate = {flat: 'Квартира', house: 'Дом', bungalo: 'Бунгало'};
-    var i;
     var feature = '';
+    var i;
     var featuresLength;
 
     adsElement.querySelector('h3').textContent = adObject.offer.title;
@@ -39,25 +39,25 @@
       activePin.classList.remove('map__pin--active');
     }
 
-    document.removeEventListener('keydown', onCardCloseEscKeydown);
+    document.removeEventListener('keydown', onDocumentEscKeydown);
   };
 
   var createCard = function (event) {
-    var i;
-    var adsLength;
     var current = event.target;
     var button = current.closest('.map__pin');
-    var img;
+    var image;
     var positionElementInObject;
+    var adsLength;
+    var i;
 
     removeCard();
 
-    img = button.querySelector('img');
+    image = button.querySelector('img');
     button.classList.add('map__pin--active');
     activePin = button;
 
     for (i = 0, adsLength = window.ads.length; i < adsLength; i++) {
-      if (img.src.indexOf(window.ads[i].author.avatar) !== -1) {
+      if (image.src.indexOf(window.ads[i].author.avatar) !== -1) {
         map.insertBefore(window.utils.createMarkupFragment(window.ads[i], createAdsCardMarkup), mapFiltersContainer);
         positionElementInObject = window.ads[i];
       }
@@ -68,11 +68,11 @@
     card.querySelector('.popup__avatar').src = positionElementInObject.author.avatar;
 
     closeCard.addEventListener('click', onCardCloseButtonClick);
-    document.addEventListener('keydown', onCardCloseEscKeydown);
+    document.addEventListener('keydown', onDocumentEscKeydown);
   };
 
-  var onCardCloseEscKeydown = function (event) {
-    if (event.keyCode === window.constant.escKeycode) {
+  var onDocumentEscKeydown = function (event) {
+    if (event.keyCode === window.constant.ESC_KEYCODE) {
       removeCard();
     }
   };

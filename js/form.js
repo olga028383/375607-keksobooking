@@ -13,32 +13,28 @@
   var noticeFormFieldRoomNumber = noticeForm.querySelector('#room_number');
   var noticeFormFieldCapacity = noticeForm.querySelector('#capacity');
   var noticeFormFieldAddress = noticeForm.querySelector('#address');
-  var noticeFormFieldFeature = noticeForm.querySelector('.features');
-  var noticeFormFieldDescription = noticeForm.querySelector('#description');
-  var noticeFormFieldFeatureInput = noticeFormFieldFeature.querySelectorAll('input');
-  var noticeFormFieldFeatures = [].slice.call(noticeFormFieldFeatureInput);
   var noticeFormFieldAvatar = noticeForm.querySelector('#avatar');
   var noticeFormAvatarDragZone = noticeForm.querySelector('.notice__photo label');
-  var noticeFormFieldImages = noticeForm.querySelector('#images');
+  var noticeFormFieldImage = noticeForm.querySelector('#images');
   var noticeFormImagesContainer = noticeForm.querySelector('.form__photo-container');
   var noticeFormImagesDragZone = noticeFormImagesContainer.querySelector('label');
-  var photo = false;
   var minimumCostHousing = {
     flat: 1000,
     bungalo: 0,
     house: 5000,
     palace: 10000
   };
+  var photo = false;
   var timeinOptions;
   var timeoutOptions;
   var typeOptions;
   var minimumPricesForType;
 
-  var syncValues = function (element, value) {
+  var synchronizationValues = function (element, value) {
     element.value = value;
   };
 
-  var syncValueWithMin = function (element, value) {
+  var synchronizationValueWithMin = function (element, value) {
     element.minLength = value;
   };
 
@@ -54,14 +50,16 @@
     var current = event.target;
     var currentValue = current.options[current.selectedIndex].value;
     var optionLength = noticeFormFieldCapacity.length;
-    var i;
     var flag = true;
+    var i;
+
     for (i = 0; i < optionLength; i++) {
       if (noticeFormFieldCapacity.options[i].value === currentValue) {
         noticeFormFieldCapacity.options[i].selected = true;
         flag = false;
       }
     }
+
     if (flag) {
       noticeFormFieldCapacity.options[optionLength - 1].selected = true;
     }
@@ -69,7 +67,6 @@
 
   var onFormSubmit = function (event) {
     event.preventDefault();
-
     var error = false;
 
     if (noticeFormFieldPrice.value < noticeFormFieldPrice.minLength ||
@@ -103,24 +100,10 @@
 
     if (!error) {
       window.backend.save(new FormData(noticeForm), function () {
-        noticeForm.querySelector('#title').value = '';
-        noticeFormFieldAddress.value = '';
-        noticeFormFieldType.value = 'flat';
-        noticeFormFieldPrice.value = '5000';
-        noticeFormFieldTimein.value = '12:00';
-        noticeFormFieldTimeout.value = '12:00';
-        noticeFormFieldRoomNumber.value = '1';
-        noticeFormFieldCapacity.value = '1';
-        noticeFormFieldDescription.value = '';
-        noticeFormFieldAvatar.value = '';
-        noticeFormFieldImages.value = '';
+        noticeForm.reset();
         noticeFormAvatarDragZone.textContent = 'Загрузите или перетащите сюда фото';
         noticeFormImagesDragZone.textContent = 'Загрузите или перетащите сюда фото';
-        noticeFormImagesContainer.style.width = '70px';
-
-        noticeFormFieldFeatures.forEach(function (element) {
-          element.checked = false;
-        });
+        noticeFormImagesContainer.style.width = '140px';
       });
     }
   };
@@ -146,17 +129,20 @@
       noticeFormImagesDragZone.innerHTML = '';
       photo = true;
     }
+
     noticeFormImagesContainer.style.width = 'auto';
     noticeFormImagesDragZone.appendChild(createPhoto(event));
   };
 
-  var parseFile = function (file, onCollbackLoad) {
+  var parseFile = function (file, onLoad) {
     var reader;
+
     if (file.type.indexOf('image') === 0) {
       reader = new FileReader();
       reader.addEventListener('load', function (event) {
-        onCollbackLoad(event);
+        onLoad(event);
       });
+
       reader.readAsDataURL(file);
     }
   };
@@ -165,17 +151,18 @@
     event.preventDefault();
   };
 
-  var selectFile = function (event, onCollbackLoad) {
+  var selectFile = function (event, onLoad) {
     stopBrowserAction(event);
     var files = event.target.files || event.dataTransfer.files;
+
     [].slice.call(files).forEach(function (file) {
-      parseFile(file, onCollbackLoad);
+      parseFile(file, onLoad);
     });
   };
 
-  var uploadPhotoEvents = function (field, dragZone, onCollbackLoad) {
+  var uploadPhotoEvents = function (field, dragZone, onLoad) {
     field.addEventListener('change', function (event) {
-      selectFile(event, onCollbackLoad);
+      selectFile(event, onLoad);
     });
 
     dragZone.addEventListener('dragover', function (event) {
@@ -189,7 +176,7 @@
     });
 
     dragZone.addEventListener('drop', function (event) {
-      selectFile(event, onCollbackLoad);
+      selectFile(event, onLoad);
       dragZone.style.border = window.utils.setBorder(false);
     });
   };
@@ -201,13 +188,13 @@
   typeOptions = window.utils.getValues(noticeFormFieldTypeOptions, getValuesFromArray);
   minimumPricesForType = window.utils.getValues(noticeFormFieldTypeOptions, getValuesFromObject);
 
-  window.synchronizeFields(noticeFormFieldTimein, noticeFormFieldTimeout, timeinOptions, timeoutOptions, syncValues);
-  window.synchronizeFields(noticeFormFieldTimeout, noticeFormFieldTimein, timeoutOptions, timeinOptions, syncValues);
-  window.synchronizeFields(noticeFormFieldType, noticeFormFieldPrice, typeOptions, minimumPricesForType, syncValueWithMin);
+  window.synchronizeFields(noticeFormFieldTimein, noticeFormFieldTimeout, timeinOptions, timeoutOptions, synchronizationValues);
+  window.synchronizeFields(noticeFormFieldTimeout, noticeFormFieldTimein, timeoutOptions, timeinOptions, synchronizationValues);
+  window.synchronizeFields(noticeFormFieldType, noticeFormFieldPrice, typeOptions, minimumPricesForType, synchronizationValueWithMin);
   noticeFormFieldRoomNumber.addEventListener('change', changeFieldCapacity);
 
   uploadPhotoEvents(noticeFormFieldAvatar, noticeFormAvatarDragZone, createPhotoAvatar);
-  uploadPhotoEvents(noticeFormFieldImages, noticeFormImagesDragZone, createPhotoImages);
+  uploadPhotoEvents(noticeFormFieldImage, noticeFormImagesDragZone, createPhotoImages);
 
   noticeForm.addEventListener('submit', onFormSubmit);
 })();
