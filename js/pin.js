@@ -117,12 +117,12 @@
     }
   };
 
-  var onPinClick = function (event) {
-    window.card.create(event);
+  var onPinClick = function (evt) {
+    window.card.create(evt);
   };
 
-  filterContainer.addEventListener('change', function (event) {
-    var target = event.target;
+  filterContainer.addEventListener('change', function (evt) {
+    var target = evt.target;
     var targetId = target.id;
     var targetValue = target.value;
 

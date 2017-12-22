@@ -42,8 +42,8 @@
     document.removeEventListener('keydown', onDocumentEscKeydown);
   };
 
-  var createCard = function (event) {
-    var current = event.target;
+  var createCard = function (evt) {
+    var current = evt.target;
     var button = current.closest('.map__pin');
     var image;
     var positionElementInObject;
@@ -71,8 +71,8 @@
     document.addEventListener('keydown', onDocumentEscKeydown);
   };
 
-  var onDocumentEscKeydown = function (event) {
-    if (event.keyCode === window.constant.ESC_KEYCODE) {
+  var onDocumentEscKeydown = function (evt) {
+    if (evt.keyCode === window.constant.ESC_KEYCODE) {
       removeCard();
     }
   };

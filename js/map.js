@@ -27,14 +27,14 @@
     }
   };
 
-  var onDragPinMainMousedown = function (event) {
-    event.preventDefault();
+  var onDragPinMainMousedown = function (evt) {
+    evt.preventDefault();
     var startCoordinates = window.utils.getCoordinates(mapPinMain);
-    var shiftX = event.pageX - startCoordinates.left;
-    var shiftY = event.pageY - startCoordinates.top;
+    var shiftX = evt.pageX - startCoordinates.left;
+    var shiftY = evt.pageY - startCoordinates.top;
     var startPinMainPosition = {
-      left: event.pageX - shiftX,
-      top: event.pageY - shiftY
+      left: evt.pageX - shiftX,
+      top: evt.pageY - shiftY
     };
 
     window.utils.setItemPosition(mapPinMain, startPinMainPosition);

@@ -46,8 +46,8 @@
     return minimumCostHousing[array[index].value];
   };
 
-  var changeFieldCapacity = function (event) {
-    var current = event.target;
+  var changeFieldCapacity = function (evt) {
+    var current = evt.target;
     var currentValue = current.options[current.selectedIndex].value;
     var optionLength = noticeFormFieldCapacity.length;
     var flag = true;
@@ -57,6 +57,7 @@
       if (noticeFormFieldCapacity.options[i].value === currentValue) {
         noticeFormFieldCapacity.options[i].selected = true;
         flag = false;
+        break;
       }
     }
 
@@ -65,8 +66,8 @@
     }
   };
 
-  var onFormSubmit = function (event) {
-    event.preventDefault();
+  var onFormSubmit = function (evt) {
+    evt.preventDefault();
     var error = false;
 
     if (noticeFormFieldAddress.value.length === 0) {
@@ -100,30 +101,30 @@
     }
   };
 
-  var createPhoto = function (event) {
+  var createPhoto = function (evt) {
     var image;
 
     image = document.createElement('img');
-    image.src = event.target.result;
+    image.src = evt.target.result;
     image.style.height = '100%';
     image.style.marginLeft = '5px';
     image.style.marginRight = '5px';
     return image;
   };
 
-  var createPhotoAvatar = function (event) {
+  var createPhotoAvatar = function (evt) {
     noticeFormAvatarDragZone.innerHTML = '';
-    noticeFormAvatarDragZone.appendChild(createPhoto(event));
+    noticeFormAvatarDragZone.appendChild(createPhoto(evt));
   };
 
-  var createPhotoImages = function (event) {
+  var createPhotoImages = function (evt) {
     if (!photo) {
       noticeFormImagesDragZone.innerHTML = '';
       photo = true;
     }
 
     noticeFormImagesContainer.style.width = 'auto';
-    noticeFormImagesDragZone.appendChild(createPhoto(event));
+    noticeFormImagesDragZone.appendChild(createPhoto(evt));
   };
 
   var parseFile = function (file, onLoad) {
@@ -131,21 +132,21 @@
 
     if (file.type.indexOf('image') === 0) {
       reader = new FileReader();
-      reader.addEventListener('load', function (event) {
-        onLoad(event);
+      reader.addEventListener('load', function (evt) {
+        onLoad(evt);
       });
 
       reader.readAsDataURL(file);
     }
   };
 
-  var stopBrowserAction = function (event) {
-    event.preventDefault();
+  var stopBrowserAction = function (evt) {
+    evt.preventDefault();
   };
 
-  var selectFile = function (event, onLoad) {
-    stopBrowserAction(event);
-    var files = event.target.files || event.dataTransfer.files;
+  var selectFile = function (evt, onLoad) {
+    stopBrowserAction(evt);
+    var files = evt.target.files || evt.dataTransfer.files;
 
     [].slice.call(files).forEach(function (file) {
       parseFile(file, onLoad);
@@ -153,22 +154,22 @@
   };
 
   var uploadPhotoEvents = function (field, dragZone, onLoad) {
-    field.addEventListener('change', function (event) {
-      selectFile(event, onLoad);
+    field.addEventListener('change', function (evt) {
+      selectFile(evt, onLoad);
     });
 
-    dragZone.addEventListener('dragover', function (event) {
-      stopBrowserAction(event);
+    dragZone.addEventListener('dragover', function (evt) {
+      stopBrowserAction(evt);
       dragZone.style.border = window.utils.setBorder(true, 'red');
     });
 
-    dragZone.addEventListener('dragleave', function (event) {
-      stopBrowserAction(event);
+    dragZone.addEventListener('dragleave', function (evt) {
+      stopBrowserAction(evt);
       dragZone.style.border = window.utils.setBorder(false);
     });
 
-    dragZone.addEventListener('drop', function (event) {
-      selectFile(event, onLoad);
+    dragZone.addEventListener('drop', function (evt) {
+      selectFile(evt, onLoad);
       dragZone.style.border = window.utils.setBorder(false);
     });
   };
